@@ -4,34 +4,44 @@
 Recipe Title: Spicy Mapo Tofu
 
 Ingredients:
-- 10 oz firm tofu, cubed
-- 4 tablespoons vegetable oil
-- 2 cloves garlic, minced
-- 2 tablespoons ginger, minced
-- 1 small onion, finely chopped
-- 1 teaspoon Sichuan peppercorns, ground
-- 1 teaspoon chili paste
-- 2 tablespoons soy sauce
-- 2 tablespoons black bean paste
-- 2 tablespoons sugar
-- 1 cup chicken broth
-- 1 teaspoon sesame oil
+- 1 block of firm tofu, cubed
+- 2 tablespoons of canola oil
+- 1 tablespoon of minced garlic
+- 2 tablespoons of minced ginger
+- 2 tablespoons of chili paste
+- 1 teaspoon of sugar
+- 2 tablespoons of soy sauce
+- 2 tablespoons of Shaoxing wine
+- 2 teaspoons of Sichuan peppercorns, toasted and ground
+- 2 tablespoons of fermented black beans
+- 2 tablespoons of chili oil
+- 1 teaspoon of sesame oil
+- 2 cups of vegetable broth
+- 2 tablespoons of cornstarch
+- 4 scallions, chopped
 
 Instructions:
 
-1. Heat 2 tablespoons of the vegetable oil in a large wok or skillet over medium-high heat.
+1. Heat the canola oil in a large skillet over medium-high heat.
 
-2. Add the garlic, ginger and onion and cook until fragrant, about 1 minute.
+2. Add the garlic and ginger and saut� until fragrant, about 1 minute.
 
-3. Add the Sichuan peppercorns, chili paste, soy sauce, black bean paste, and sugar and stir to combine.
+3. Add the chili paste, sugar, soy sauce, Shaoxing wine, Sichuan peppercorns, fermented black beans, and chili oil. Stir to combine and cook until fragrant, about 1 minute.
 
-4. Add the chicken broth and bring to a simmer.
+4. Add the tofu and stir to coat in the sauce.
 
-5. Add the cubed tofu and stir to combine. Reduce the heat to low and cook for 5 minutes, stirring occasionally.
-
-6. Heat the remaining 2 tablespoons of vegetable oil in a separate small skillet over medium-high heat.
-
-7. Add the sesame oil
+5. Add the vegetable broth and bring
 </pre>
 
-&nbsp; &nbsp; <img src="dish.jpg" alt="dish" width="400" height="400">
+&nbsp; &nbsp; <img id="dishImage" src="dish.jpg" alt="dish" width="400" height="400">
+<script>
+    // Create a timestamp
+    var timestamp = new Date().getTime();
+
+    // Get the image element
+    var image = document.getElementById("dishImage");
+
+    // Adding the timestamp parameter to image src
+    image.src="dish.jpg?t=" + timestamp;
+    console.log(image.src);
+</script>
