@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教牧精兵·五连环挑战 2026</title>
+    <style>
+        :root { --primary: #2c3e50; --gold: #d4af37; --success: #27ae60; --danger: #e74c3c; --bg: #f4f7f6; }
+        body { font-family: 'PingFang SC', system-ui; background: var(--bg); margin: 0; padding: 0; }
+        .container { max-width: 500px; margin: 0 auto; background: #fff; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .header { background: var(--primary); color: #fff; padding: 25px 15px; text-align: center; border-bottom: 4px solid var(--gold); }
+        #menu, #game-stage, #final-res { padding: 20px; display: none; }
+        #menu { display: block; }
+        .category-card { background: #fff; border: 2px solid #eee; border-radius: 15px; padding: 20px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; }
+        .category-card:active { background: #f9f9f9; transform: scale(0.98); }
+        
+        #game-screen { background: #fafafa; border: 1px solid #ddd; border-radius: 10px; min-height: 320px; position: relative; overflow: hidden; padding: 10px; }
+        .bubble { position: absolute; padding: 12px; background: var(--danger); color: #fff; border-radius: 20px; font-weight: bold; cursor: pointer; user-select: none; }
+        .item-tag { display: inline-block; padding: 10px 14px; margin: 5px; background: #eee; border-radius: 8px; font-size: 14px; cursor: pointer; }
+        .drop-zone { border: 2px dashed var(--gold); min-height: 70px; margin: 15px 0; padding: 12px; border-radius: 10px; background: #fffdf5; font-size: 15px; line-height: 1.6; color: var(--primary); }
+        
+        .progress-ui { font-size: 16px; font-weight: bold; color: var(--gold); margin-bottom: 15px; text-align: center; }
+        .btn-action { width: 100%; padding: 15px; background: var(--success); color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 10px; cursor: pointer; }
+        .btn-cancel { width: 100%; padding: 12px; background: #fff; color: var(--danger); border: 2px solid var(--danger); border-radius: 10px; font-weight: bold; font-size: 14px; margin-top: 15px; cursor: pointer; }
+        .btn-action:active { opacity: 0.8; }
+        .btn-cancel:active { background: #fff5f5; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2 style="margin:0">🛡️ 教牧精兵·五连环挑战</h2>
+        <p style="margin:5px 0 0; font-size:12px; opacity:0.8">请连续通过 5 项属灵关卡</p>
+    </div>
+
+    <!-- 主菜单 -->
+    <div id="menu">
+        <div class="category-card" onclick="startSeries(1)"><h3>⚔️ 第一类：真道守望者</h3><p>测试你对真理规模的辨析能力</p></div>
+        <div class="category-card" onclick="startSeries(2)"><h3>📦 第二类：忠心好管家</h3><p>测试你对圣洁品格的筛选能力</p></div>
+        <div class="category-card" onclick="startSeries(3)"><h3>🏃 第三类：福音跑手</h3><p>测试你对保罗末了心志的记忆</p></div>
+    </div>
+
+    <!-- 游戏舞台 -->
+    <div id="game-stage">
+        <div class="progress-ui" id="progress-text">第 1 / 5 关</div>
+        <div id="game-screen"></div>
+        <button id="submit-btn" class="btn-action" onclick="validateCurrentGame()">确认提交验证</button>
+        <button class="btn-cancel" onclick="abandonGame()">放弃挑战 · 返回菜单</button>
+    </div>
+
+    <!-- 结算页 -->
+    <div id="final-res" style="text-align:center;">
+        <div style="font-size:60px; margin-bottom:20px;">🏆</div>
+        <h1 style="color:var(--success); margin-top:0;">闯关大获全胜！</h1>
+        <p style="color:#666; line-height:1.6;">你已经成功完成了 5 项属灵任务。<br>愿这些话语常在你心里，作基督精兵。</p>
+        <button class="btn-action" style="background:var(--primary)" onclick="location.reload()">返回主菜单挑战其他</button>
+    </div>
+</div>
+
+<script>
+    let curCat = 0;
+    let curStep = 0;
+    let pInput = [];
+    let sInput = [];
+    let gameRef = null;
+
+    const db = {
+        1: [
+            { t: "敬虔奥秘", type: "puzzle", items: ["大哉","敬虔的奥秘","无人不以为然","就是神","在肉身显现","被圣灵称义"] },
+            { t: "守住规模", type: "puzzle", items: ["你从我","听的那","纯正话语的规模","要用在","基督耶稣里的","信心和爱心","常常守着"] },
+            { t: "碎裂虚谈", type: "click", target: 8 },
+            { t: "真理本源", type: "puzzle", items: ["圣经","都是神所默示的","于教训","督责","使人归正","教导人学义","是有益的"] },
+            { t: "辨别异端", type: "click", target: 10 }
+        ],
+        2: [
+            { t: "监督正面品格", type: "sort", goods: ["善于教导","管理家务","端庄顺服","不远酒"], bads: ["好喝酒","打人","新入教","一口两舌"] },
+            { t: "执事正面品格", type: "sort", goods: ["存清明良心","凡事忠心","大有胆量","一个妻子的丈夫"], bads: ["贪财","言语反复","好吵闹"] },
+            { t: "贵重器皿", type: "puzzle", items: ["人若自洁","脱离卑贱的事","就必作","贵重的器皿","成为圣洁","合乎主用"] },
+            { t: "精兵心态", type: "sort", goods: ["刚强的心","仁爱的心","谨守的心"], bads: ["胆怯的心","混乱的心","贪爱现世"] },
+            { t: "提多的榜样", type: "puzzle", items: ["你自己","凡事要","显出","善行的榜样","在教训上","要纯全庄重"] }
+        ],
+        3: [
+            { t: "最后宣告1", type: "puzzle", items: ["那美好的仗","我已经打过了","当跑的路","我已经跑尽了","所信的道","我已经守住了"] },
+            { t: "冠冕宣告", type: "puzzle", items: ["从此以后","有公义的冠冕","为我存留","就是按着公义","审判的主","要赐给我的"] },
+            { t: "末了嘱托", type: "puzzle", items: ["务要传道","无论得时不得时","总要专心","并用百般的忍耐","责备人","警戒人"] },
+            { t: "精兵准则", type: "puzzle", items: ["凡在军中当兵的","不将世务缠身","好叫那","招他当兵的人","欢喜"] },
+            { t: "同受苦难", type: "puzzle", items: ["你要和我","同受苦难","好像","基督耶稣的","精兵"] }
+        ]
+    };
+
+    function startSeries(c) {
+        curCat = c; curStep = 0;
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('game-stage').style.display = 'block';
+        loadGame();
+    }
+
+    function loadGame() {
+        pInput = []; sInput = [];
+        const stage = db[curCat][curStep];
+        gameRef = stage;
+        document.getElementById('progress-text').innerText = `第 ${curStep + 1} / 5 关：${stage.t}`;
+        const screen = document.getElementById('game-screen');
+        screen.innerHTML = "";
+        document.getElementById('submit-btn').style.display = (stage.type === "click" ? "none" : "block");
+
+        if (stage.type === "puzzle") {
+            const az = document.createElement('div'); az.className = "drop-zone"; az.id = "p-ans"; az.innerText = "按顺序点击下方块...";
+            const pool = document.createElement('div');
+            [...stage.items].sort(() => Math.random()-0.5).forEach(txt => {
+                const b = document.createElement('span'); b.className = "item-tag"; b.innerText = txt;
+                b.onclick = () => { pInput.push(txt); az.innerText = pInput.join(" > "); b.style.visibility = "hidden"; };
+                pool.appendChild(b);
+            });
+            screen.appendChild(az); screen.appendChild(pool);
+        } 
+        else if (stage.type === "sort") {
+            const az = document.createElement('div'); az.className = "drop-zone"; az.id = "s-ans"; az.innerText = "挑选符合圣经要求的品质...";
+            const pool = document.createElement('div');
+            const all = [...stage.goods, ...stage.bads].sort(() => Math.random()-0.5);
+            all.forEach(txt => {
+                const b = document.createElement('span'); b.className = "item-tag"; b.innerText = txt;
+                b.onclick = () => { sInput.push(txt); const n = document.createElement('span'); n.className="item-tag"; n.innerText=txt; n.style.background="#d4af37"; n.style.color="#fff"; az.appendChild(n); b.style.visibility="hidden"; };
+                pool.appendChild(b);
+            });
+            screen.appendChild(az); screen.appendChild(pool);
+        }
+        else if (stage.type === "click") {
+            let hits = 0;
+            const timer = setInterval(() => {
+                const b = document.createElement('div'); b.className="bubble"; b.innerText="虚谈"; 
+                b.style.left = Math.random()*70+"%"; b.style.top = Math.random()*70+"%";
+                b.onclick = () => { b.remove(); hits++; if(hits >= stage.target) { clearInterval(timer); nextStep(); } };
+                screen.appendChild(b); setTimeout(() => { if(b) b.remove(); }, 1200);
+            }, 800);
+        }
+    }
+
+    function validateCurrentGame() {
+        const stage = gameRef;
+        if (stage.type === "puzzle") {
+            if (JSON.stringify(pInput) === JSON.stringify(stage.items)) {
+                nextStep();
+            } else {
+                alert("❌ 顺序不对，真理需要严谨！本关将重新开始。"); loadGame();
+            }
+        } 
+        else if (stage.type === "sort") {
+            const isCorrect = sInput.every(i => stage.goods.includes(i)) && sInput.length === stage.goods.length;
+            if (isCorrect) {
+                nextStep();
+            } else {
+                alert("❌ 筛选不准确，请参考圣经要求！本关将重新开始。"); loadGame();
+            }
+        }
+    }
+
+    function nextStep() {
+        curStep++;
+        if (curStep < 5) {
+            alert("✨ 通关成功！进入第 " + (curStep+1) + " 连环挑战。");
+            loadGame();
+        } else {
+            document.getElementById('game-stage').style.display = 'none';
+            document.getElementById('final-res').style.display = 'block';
+        }
+    }
+
+    function abandonGame() {
+        if (confirm("确定要放弃当前的挑战进度，返回主菜单吗？")) {
+            location.reload();
+        }
+    }
+</script>
+</body>
+</html>
