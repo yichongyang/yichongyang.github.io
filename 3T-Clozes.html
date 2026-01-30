@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教牧书信·二十道终极封印</title>
+    <style>
+        :root { --cell-bg: #0d0d0d; --gold: #b38b4d; --stone: #252a2b; --text: #e0e0e0; --danger: #ff4757; }
+        body { background: var(--cell-bg); color: var(--text); font-family: 'PingFang SC', serif; margin: 0; display: flex; justify-content: center; }
+        .prison-container { width: 100%; max-width: 500px; min-height: 100vh; background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), url('https://www.transparenttextures.com'); border: 5px solid #222; padding: 20px; box-sizing: border-box; position: relative; }
+        .timer { font-size: 36px; text-align: center; color: var(--danger); font-family: 'Courier New', monospace; margin-bottom: 10px; border: 2px dashed var(--danger); padding: 5px; }
+        .lock-status { text-align: center; color: var(--gold); font-size: 14px; letter-spacing: 2px; margin-bottom: 20px; }
+        .clue-box { background: var(--stone); border: 2px solid var(--gold); border-radius: 4px; padding: 20px; box-shadow: 0 0 30px rgba(0,0,0,1); }
+        h4 { margin-top: 0; color: var(--gold); border-bottom: 1px solid #444; padding-bottom: 10px; font-size: 16px; }
+        .clue-content { line-height: 1.6; font-size: 15px; min-height: 80px; }
+        input[type="text"] { width: 100%; padding: 12px; background: #000; border: 1px solid var(--gold); color: #fff; font-size: 18px; text-align: center; margin: 15px 0; outline: none; }
+        .unlock-btn { width: 100%; padding: 15px; background: var(--gold); color: #000; border: none; font-weight: bold; font-size: 18px; cursor: pointer; }
+        #success-page { display: none; text-align: center; padding-top: 40px; }
+        .copyright { text-align: center; font-size: 11px; color: #555; margin-top: 30px; border-top: 1px solid #222; padding-top: 15px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<div class="prison-container">
+    <div id="game-core">
+        <div class="timer" id="time-display">10:00</div>
+        <div class="lock-status" id="step-label">封印锁定中: 1 / 20</div>
+        
+        <div class="clue-box">
+            <h4 id="clue-title">第一道封印</h4>
+            <div id="clue-desc" class="clue-content"></div>
+            <input type="text" id="answer-input" placeholder="输入经文中的原词" autocomplete="off">
+            <button class="unlock-btn" onclick="processAnswer()">解开封印</button>
+        </div>
+    </div>
+
+    <div id="success-page">
+        <h1 style="color:var(--gold); font-size: 40px;">🕊️ 凯旋归主</h1>
+        <p style="font-size:16px; line-height:1.8;">那美好的仗我已经打过了，<br>当跑的路我已经跑尽了，<br>所信的道我已经守住了。</p>
+        <button class="unlock-btn" onclick="location.reload()">重新开启挑战</button>
+    </div>
+
+    <div style="text-align:center; font-size:11px; color:#999; padding:20px; line-height:1.6; border-top:1px solid #eee;">
+	© 2026 拿城华人圣经教会，版权所有
+    </div>
+</div>
+
+<script>
+    let curStep = 0;
+    let timerSec = 600;
+    
+    // 20道全新、非重复、高难度题目
+    const locks = [
+        { q: "提前 1:1提到：奉我们救主神和我们的____基督耶稣之命，作基督耶稣使徒的保罗，", a: "盼望" },
+        { q: "提前 1:3中，保罗曾劝提摩太仍住在____，好嘱咐那几个人不可传异教，", a: "以弗所" },
+        { q: "提前 2:9提到女人服装要廉耻、自守，不以____、黄金、珍珠和廉价的衣裳为装饰；", a: "编发" },
+        { q: "提前 4:13提到：你要以宣读、劝勉、教导为念，直等到____。", a: "我来" },
+        { q: "提前 5:18引用圣经说：牛在场上____的时候，不可笼住它的嘴。", a: "踹谷" },
+        { q: "提前 6:11称提摩太为：但你这____的人哪，你要逃避这些事，", a: "属神" },
+        { q: "提前 6:20嘱咐提摩太要避开世俗的虚谈和那敌真道、似是而非的____。", a: "学问" },
+        { q: "提多书 1:1提到：神仆人、耶稣基督使徒保罗，凭着神选民的____和敬虔真理的知识，", a: "信心" },
+        { q: "提多书 1:12引用本地先知的话，说革哩底人又馋又____。", a: "懒" },
+        { q: "提多书 3:12保罗打发____或是推基古，到你那里去的时候，", a: "亚提马" },
+        { q: "提多书 3:13保罗嘱咐提多要给律师____和亚波罗送行，", a: "西纳" },
+        { q: "提后 1:15提到凡在亚细亚的人都离弃了保罗，其中有腓吉路和____。", a: "黑摩其尼" },
+        { q: "提后 2:3提到：你要和我同受苦难，好像基督耶稣的____。", a: "精兵" },
+        { q: "提后 2:17提到：他们的话如同毒疮，越烂越大，其中有____和腓力图？", a: "许米乃" },
+        { q: "提后 2:19提到：主认识____的人。", a: "属他" },
+        { q: "提后 3:8提到：从前____和佯庇敌挡摩西，这等人也怎样敌挡真道；", a: "雅尼" },
+        { q: "提后 4:11提到：此时独有____在我这里。", a: "路加" },
+        { q: "提后 4:11提到：你来的时候，要把____带来，因为他在传道的事上于我有益处。", a: "马可" },
+        { q: "提后 4:12提到：我已经打发____往以弗所去。", a: "推基古" },
+        { q: "提后 4:20提到：____在哥林多住下了。", a: "以拉都" }
+    ];
+
+    function updateUI() {
+        document.getElementById('step-label').innerText = `封印锁定中: ${curStep + 1} / 20`;
+        document.getElementById('clue-title').innerText = `第 ${curStep + 1} 道封印`;
+        document.getElementById('clue-desc').innerText = locks[curStep].q;
+        document.getElementById('answer-input').value = "";
+    }
+
+    const tInterval = setInterval(() => {
+        timerSec--;
+        let m = Math.floor(timerSec / 60);
+        let s = timerSec % 60;
+        document.getElementById('time-display').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+        if(timerSec <= 60) document.getElementById('time-display').style.color = "#ff0000";
+        if(timerSec <= 0) { clearInterval(tInterval); alert("封印永封！提摩太未能完成使命。"); location.reload(); }
+    }, 1000);
+
+    function processAnswer() {
+        const inputVal = document.getElementById('answer-input').value.trim();
+        if(inputVal === locks[curStep].a) {
+            curStep++;
+            if(curStep >= locks.length) {
+                clearInterval(tInterval);
+                document.getElementById('game-core').style.display = 'none';
+                document.getElementById('success-page').style.display = 'block';
+            } else {
+                updateUI();
+            }
+        } else {
+            alert("❌ 封印排斥！密码词不对，请精确查阅《和合本》。");
+        }
+    }
+
+    updateUI();
+</script>
+</body>
+</html>
