@@ -3,20 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教牧书信·二十道终极封印</title>
+    <title>教牧书信·二十道终极跨越</title>
     <style>
-        :root { --cell-bg: #0d0d0d; --gold: #b38b4d; --stone: #252a2b; --text: #e0e0e0; --danger: #ff4757; }
-        body { background: var(--cell-bg); color: var(--text); font-family: 'PingFang SC', serif; margin: 0; display: flex; justify-content: center; }
+       /* 核心修复：确保所有元素的宽度计算包含边框和内边距 */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        :root { --cell-bg: #0d0d0d; --gold: #b38b4d; --stone: #252a2b; --text: #e0e0e0; --danger: #ff4757; --success: #27ae60; }
+        body { background: var(--cell-bg); color: var(--text); font-family: 'PingFang SC', serif; margin: 0; display: flex; justify-content: center; overflow-x: hidden; }
         .prison-container { width: 100%; max-width: 500px; min-height: 100vh; background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), url('https://www.transparenttextures.com'); border: 5px solid #222; padding: 20px; box-sizing: border-box; position: relative; }
-        .timer { font-size: 36px; text-align: center; color: var(--danger); font-family: 'Courier New', monospace; margin-bottom: 10px; border: 2px dashed var(--danger); padding: 5px; }
+        
+        .timer { font-size: 36px; text-align: center; color: var(--danger); font-family: 'Courier New', monospace; margin-bottom: 10px; border: 2px dashed var(--danger); padding: 5px; transition: 0.3s; }
         .lock-status { text-align: center; color: var(--gold); font-size: 14px; letter-spacing: 2px; margin-bottom: 20px; }
-        .clue-box { background: var(--stone); border: 2px solid var(--gold); border-radius: 4px; padding: 20px; box-shadow: 0 0 30px rgba(0,0,0,1); }
-        h4 { margin-top: 0; color: var(--gold); border-bottom: 1px solid #444; padding-bottom: 10px; font-size: 16px; }
-        .clue-content { line-height: 1.6; font-size: 15px; min-height: 80px; }
-        input[type="text"] { width: 100%; padding: 12px; background: #000; border: 1px solid var(--gold); color: #fff; font-size: 18px; text-align: center; margin: 15px 0; outline: none; }
-        .unlock-btn { width: 100%; padding: 15px; background: var(--gold); color: #000; border: none; font-weight: bold; font-size: 18px; cursor: pointer; }
-        #success-page { display: none; text-align: center; padding-top: 40px; }
-        .copyright { text-align: center; font-size: 11px; color: #555; margin-top: 30px; border-top: 1px solid #222; padding-top: 15px; line-height: 1.5; }
+
+	.clue-box { 
+    	background: var(--stone); 
+    	border: 2px solid var(--gold); 
+    	border-radius: 4px; 
+    	padding: 20px;         /* 这个内边距现在会限制输入框，不会让它溢出 */
+    	box-shadow: 0 0 30px rgba(0,0,0,1); 
+    	width: 100%;           /* 填充父容器 */
+	}
+
+	.clue-content { line-height: 1.6; font-size: 15px; min-height: 80px; transition: opacity 0.3s; }
+        
+	input[type="text"] { 
+	    	width: 100%;           /* 占据容器全宽 */
+    		display: block;        /* 确保作为块级元素排列 */
+    		padding: 15px;         /* 保持内边距 */
+    		background: #000; 
+    		border: 1px solid var(--gold); 
+    		color: #fff; 
+    		font-size: 18px; 
+    		text-align: center; 
+    		margin: 10px 0 20px 0; /* 调整下边距，与按钮拉开距离 */
+    		outline: none; 
+    		transition: 0.3s; 
+	}
+
+        input.error-shake { border-color: var(--danger); animation: shake 0.4s; }
+        input.success-glow { border-color: var(--success); box-shadow: 0 0 15px var(--success); }
+
+        .unlock-btn { width: 100%; padding: 15px; background: var(--gold); color: #000; border: none; font-weight: bold; font-size: 18px; cursor: pointer; transition: all 0.1s; -webkit-tap-highlight-color: transparent; }
+        .unlock-btn:active { transform: scale(0.95); background: #96723b; }
+        
+        /* 成功页与冠冕动画 */
+        #success-page { display: none; text-align: center; padding-top: 40px; animation: fadeIn 1s; }
+        .crown-icon { font-size: 80px; color: #f1c40f; text-shadow: 0 0 20px #d4af37; margin-bottom: 20px; animation: pulse 2s infinite; display: block; }
+        
+        .copyright { text-align: center; font-size: 11px; color: #555; margin-top: 30px; border-top: 1px solid #222; padding-top: 15px; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.3); } 100% { transform: scale(1); filter: brightness(1); } }
     </style>
 </head>
 <body>
@@ -24,19 +62,29 @@
 <div class="prison-container">
     <div id="game-core">
         <div class="timer" id="time-display">10:00</div>
-        <div class="lock-status" id="step-label">封印锁定中: 1 / 20</div>
+        <div class="lock-status" id="step-label">跨越进行中: 1 / 20</div>
         
-        <div class="clue-box">
-            <h4 id="clue-title">第一道封印</h4>
+        <div class="clue-box" id="main-box">
+            <h4 id="clue-title" style="color:var(--gold); border-bottom:1px solid #444; padding-bottom:10px; margin-top:0;">第一道跨越</h4>
             <div id="clue-desc" class="clue-content"></div>
-            <input type="text" id="answer-input" placeholder="输入经文中的原词" autocomplete="off">
-            <button class="unlock-btn" onclick="processAnswer()">解开封印</button>
+            <input type="text" id="answer-input" placeholder="按经文原词输入" autocomplete="off">
+            <button class="unlock-btn" onclick="processAnswer()">点击跨越</button>
         </div>
     </div>
 
+    <!-- 逃脱成功界面 -->
     <div id="success-page">
-        <h1 style="color:var(--gold); font-size: 40px;">🕊️ 凯旋归主</h1>
-        <p style="font-size:16px; line-height:1.8;">那美好的仗我已经打过了，<br>当跑的路我已经跑尽了，<br>所信的道我已经守住了。</p>
+        <span class="crown-icon">👑</span>
+        <h1 style="color:var(--gold); font-size: 36px; margin-top: 0;">凯旋归主</h1>
+        <p style="font-size:16px; line-height:1.8; color: #ecf0f1;">
+            那美好的仗我已经打过了，<br>
+            当跑的路我已经跑尽了，<br>
+            所信的道我已经守住了。<br>
+            从此以后，有公义的冠冕为我存留，<br>
+	    就是按着公义审判的主到了那日要赐给我的；<br>
+	    不但赐给我，也赐给凡爱慕他显现的人。
+        </p>
+        <p style="color:var(--gold); font-size: 14px; margin-bottom: 30px;">—— 提摩太后书 4:7-8 ——</p>
         <button class="unlock-btn" onclick="location.reload()">重新开启挑战</button>
     </div>
 
@@ -49,7 +97,6 @@
     let curStep = 0;
     let timerSec = 600;
     
-    // 20道全新、非重复、高难度题目
     const locks = [
         { q: "提前 1:1提到：奉我们救主神和我们的____基督耶稣之命，作基督耶稣使徒的保罗，", a: "盼望" },
         { q: "提前 1:3中，保罗曾劝提摩太仍住在____，好嘱咐那几个人不可传异教，", a: "以弗所" },
@@ -74,10 +121,16 @@
     ];
 
     function updateUI() {
-        document.getElementById('step-label').innerText = `封印锁定中: ${curStep + 1} / 20`;
-        document.getElementById('clue-title').innerText = `第 ${curStep + 1} 道封印`;
-        document.getElementById('clue-desc').innerText = locks[curStep].q;
-        document.getElementById('answer-input').value = "";
+        const desc = document.getElementById('clue-desc');
+        desc.style.opacity = "0";
+        setTimeout(() => {
+            document.getElementById('step-label').innerText = `跨越进行中: ${curStep + 1} / 20`;
+            document.getElementById('clue-title').innerText = `第 ${curStep + 1} 道跨越`;
+            desc.innerText = locks[curStep].q;
+            desc.style.opacity = "1";
+            document.getElementById('answer-input').value = "";
+            document.getElementById('answer-input').classList.remove('success-glow');
+        }, 300);
     }
 
     const tInterval = setInterval(() => {
@@ -86,22 +139,26 @@
         let s = timerSec % 60;
         document.getElementById('time-display').innerText = `${m}:${s < 10 ? '0'+s : s}`;
         if(timerSec <= 60) document.getElementById('time-display').style.color = "#ff0000";
-        if(timerSec <= 0) { clearInterval(tInterval); alert("封印永封！提摩太未能完成使命。"); location.reload(); }
+        if(timerSec <= 0) { clearInterval(tInterval); alert("跨越未了！时间已逝。"); location.reload(); }
     }, 1000);
 
     function processAnswer() {
-        const inputVal = document.getElementById('answer-input').value.trim();
-        if(inputVal === locks[curStep].a) {
+        const input = document.getElementById('answer-input');
+        const val = input.value.trim();
+        
+        if(val === locks[curStep].a) {
+            input.classList.add('success-glow');
             curStep++;
             if(curStep >= locks.length) {
                 clearInterval(tInterval);
                 document.getElementById('game-core').style.display = 'none';
                 document.getElementById('success-page').style.display = 'block';
             } else {
-                updateUI();
+                setTimeout(updateUI, 500);
             }
         } else {
-            alert("❌ 封印排斥！密码词不对，请精确查阅《和合本》。");
+            input.classList.add('error-shake');
+            setTimeout(() => input.classList.remove('error-shake'), 400);
         }
     }
 
