@@ -28,13 +28,13 @@
 
         /* --- Screens --- */
         .screen {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            padding: 20px;
-            overflow-y: auto;
-            padding-bottom: 5px; /* Space for footer */
-            position: relative;
+		    display: none;
+		    flex-direction: column;
+		    height: 100%;
+		    padding: 20px;
+		    overflow-y: auto;
+		    padding-bottom: 20px;  /* 原来是 50px，改小 */
+		    position: relative;
         }
         .screen.active { display: flex; }
 
@@ -192,9 +192,9 @@
 		    text-align: center;
 		    font-size: 0.7rem;
 		    color: #95a5a6;
-		    margin-top: 12px;
-		    margin-bottom: 8px;
-		    position: relative;   /* 原来是 absolute */
+		    margin-top: 8px;        /* 新增，减少与按钮的距离 */
+		    position: relative;     /* 原来是 absolute，改为 relative */
+		    bottom: auto;           /* 移除绝对定位的 bottom */
 		    width: 100%;
 		    left: 0;
         }
