@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "希伯来书学习应用"
+version = "1.0.0"
+id = "artifacts/hebrews-study"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23007
+
+[services.development]
+run = "pnpm --filter @workspace/hebrews-study run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/hebrews-study", "run", "build" ]
+publicDir = "artifacts/hebrews-study/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23007"
+BASE_PATH = "/"
