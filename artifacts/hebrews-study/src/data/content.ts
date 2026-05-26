@@ -400,9 +400,9 @@ export const questions: Question[] = [
     type: "multiple-choice",
     chapter: 3,
     question: "希伯来书3:13说要在什么时候彼此劝勉？",
-    options: ["每年一次", "趁还有称为今日的时候，天天", "礼拜天", "遇到困难时"],
+    options: ["每年一次", "趁还有今日，天天", "礼拜天", "遇到困难时"],
     answer: 1,
-    explanation: "希伯来书3:13说，总要趁着还有称为今日的时候，天天彼此相劝。",
+    explanation: "希伯来书3:13说，总要趁着还有今日，天天彼此相劝。",
   },
   {
     id: "c3-tf-1",
