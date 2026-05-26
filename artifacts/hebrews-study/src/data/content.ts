@@ -311,9 +311,9 @@ export const questions: Question[] = [
     type: "multiple-choice",
     chapter: 2,
     question: "耶稣凡事与弟兄相同，目的是什么？",
-    options: ["做我们的榜样", "成为怜悯忠信的大祭司", "让我们学习他", "证明他是人"],
+    options: ["做我们的榜样", "成为慈悲忠信的大祭司", "让我们学习他", "证明他是人"],
     answer: 1,
-    explanation: "希伯来书2:17说，耶稣凡事与弟兄相同，是要在神面前成为怜悯忠信的大祭司。",
+    explanation: "希伯来书2:17说，耶稣凡事与弟兄相同，是要在神面前成为慈悲忠信的大祭司。",
   },
   {
     id: "c2-tf-1",
