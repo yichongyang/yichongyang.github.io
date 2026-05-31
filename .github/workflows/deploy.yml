@@ -45,6 +45,7 @@ jobs:
         run: |
           mkdir -p _site/bible-studies/Hebrews
           cp -r artifacts/hebrews-study/dist/. _site/bible-studies/Hebrews/
+          if [ -d public ]; then cp -r public/. _site/; fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
