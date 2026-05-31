@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>希伯来书深度研经挑战</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #c0392b; /* 深红代表基督的血/警告 */
+            --success: #27ae60;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #333;
+        }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Screens --- */
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100dvh;
+            padding: 12px 16px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 20px; /* 基础内边距，移动端由flex控制 */
+        }
+        .screen.active { display: flex; }
+
+        /* --- UI Components --- */
+        h1, h2 { text-align: center; margin: 0.5em 0; color: var(--primary); }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+            display: block;
+            width: 80%;
+            max-width: 260px;
+            margin: 12px auto;
+            text-align: center;
+        }
+        .btn:active { transform: scale(0.96); box-shadow: 0 2px 3px rgba(0,0,0,0.1); }
+        .btn-next { background: #e67e22; display: none; } 
+
+        /* --- HUD --- */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.85rem;
+            z-index: 10;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        /* --- Question Card --- */
+        .q-card {
+            background: var(--card);
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 10px;
+	    margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            min-height: 0; /* flex限制溢出关键 */
+        }
+        .q-tag {
+            align-self: flex-start;
+            background: #ecf0f1;
+            color: #7f8c8d;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+        .q-text { 
+            font-size: 1rem; 
+            font-weight: 600; 
+            margin-bottom: 16px; 
+            line-height: 1.5; 
+            color: #2c3e50;
+        }
+
+        /* --- 选项区 --- */
+        .options-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .opt-btn {
+            background: white;
+            border: 1px solid #dfe6e9;
+            padding: 12px 14px;
+            border-radius: 12px;
+            text-align: left;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            color: #444;
+        }
+        .opt-btn.selected { border-color: var(--primary); background: #ebf5fb; color: var(--primary); font-weight: 500; }
+        .opt-btn.correct { border-color: var(--success); background: #d5f5e3; color: #145a32; }
+        .opt-btn.wrong { border-color: var(--accent); background: #fadbd8; color: #7b241c; }
+
+        /* 拼图样式 */
+        .puzzle-area {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 12px;
+            min-height: 70px;
+            border: 2px dashed #bdc3c7;
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .puzzle-piece {
+            background: var(--primary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: 0.1s;
+        }
+        .puzzle-source { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; }
+        .puzzle-piece.used { opacity: 0.4; transform: scale(0.92); pointer-events: none; }
+
+        /* 填空样式 */
+        .cloze-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            background: #fef9e6;
+            padding: 14px;
+            border-radius: 14px;
+            border-left: 5px solid var(--accent);
+            margin-bottom: 18px;
+        }
+        .cloze-gap {
+            display: inline-block;
+            min-width: 60px;
+            border-bottom: 3px solid var(--primary);
+            color: var(--accent);
+            font-weight: bold;
+            text-align: center;
+            padding: 0 6px;
+            cursor: pointer;
+            background: #fff4e0;
+            margin: 0 4px;
+        }
+        .cloze-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; justify-content: center; }
+        .cloze-btn {
+            background: white;
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .cloze-btn.active { background: var(--primary); color: white; }
+
+        /* Feedback */
+        .feedback {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: #f8f9fa;
+            border-left: 4px solid #ccc;
+            display: none;
+            font-size: 0.85rem;
+        }
+        .feedback.show { display: block; animation: slideUp 0.2s; }
+        .feedback.correct { border-color: var(--success); background: #eafaf1; }
+        .feedback.wrong { border-color: var(--accent); background: #fdedec; }
+
+        /* 按钮区域容器 - 固定在底部区域但不绝对定位 */
+        .button-container {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0 12px 0;
+            padding: 0 8px;
+        }
+        
+        /* 底部版权 - 不再绝对定位，采用相对流式布局 */
+        .footer {
+            text-align: center;
+            font-size: 0.65rem;
+            color: #555555;
+            padding: 10px 0 8px 0;
+            flex-shrink: 0;
+            background: transparent;
+            position: relative;
+            width: 100%;
+        }
+
+        @keyframes slideUp { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* 欢迎界面特殊背景柔化 */
+        #screen-welcome { 
+            justify-content: center; 
+            align-items: center; 
+            background: linear-gradient(135deg, #1e3c72, #2a5298); 
+            color: white; 
+            text-align: center;
+        }
+        #screen-welcome .footer {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        /* 滚动条隐藏美观 */
+        .q-card::-webkit-scrollbar {
+            width: 3px;
+        }
+        @media (max-width: 600px) {
+            .btn { width: 90%; padding: 10px 16px; }
+            .q-card { padding: 14px; }
+            .hud { padding: 8px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SCREEN 1: WELCOME -->
+<div id="screen-welcome" class="screen active">
+    <div style="font-size: 3rem; margin-bottom:8px;">📖</div>
+    <h1 style="color:white; margin:0;">希伯来书<br>炉火纯青</h1>
+    <p style="opacity:0.9; font-size:0.85rem;">第一至六章 • 深度研经挑战</p>
+    
+    <div style="background: rgba(255,255,255,0.15); padding: 16px; border-radius: 20px; margin: 25px 0; text-align: left; font-size: 0.8rem; line-height: 1.7;">
+        <p>🔥 <b>第一关: 基督的超越（1-2章）</b> (选择)</p>
+        <p>🧩 <b>第二关: 警告与安息（3-4章）</b> (拼图)</p>
+        <p>⚖️ <b>第三关: 成熟与应许（5-6章）</b> (填空)</p>
+    </div>
+    
+    <button class="btn" onclick="game.start()" style="background: #e67e22; width: 200px;">开始挑战</button>
+    <div class="footer">© 2026 拿城华人圣经教会</div>
+</div>
+
+<!-- SCREEN 2: GAMEPLAY -->
+<div id="screen-game" class="screen">
+    <div class="hud">
+        <span id="hud-level">第一关</span>
+        <span id="hud-progress">1 / 15</span>
+        <span id="hud-score">0 分</span>
+    </div>
+
+    <div class="q-card">
+        <div class="q-tag" id="q-type-tag">题型</div>
+        <div class="q-text" id="q-text">题目加载中...</div>
+        
+        <!-- Interaction Area -->
+        <div id="interaction-area"></div>
+
+        <!-- Feedback -->
+        <div id="feedback-box" class="feedback">
+            <b id="fb-title"></b>
+            <p id="fb-msg" style="margin: 5px 0 0 0;"></p>
+        </div>
+    </div>
+
+    <!-- 按钮及版权区域，确保可见 -->
+    <div class="button-container">
+        <button id="btn-check" class="btn" onclick="game.checkAnswer()">提交答案</button>
+        <button id="btn-next" class="btn btn-next" onclick="game.nextQuestion()">下一题</button>
+    </div>
+    <div class="footer">© 2026 拿城华人圣经教会 | 版权所有</div>
+</div>
+
+<!-- SCREEN 3: LEVEL REPORT -->
+<div id="screen-level" class="screen" style="justify-content: center; text-align: center;">
+    <div style="margin: 20px 0;">
+        <h2 id="lvl-title" style="color: var(--primary);">关卡完成</h2>
+        <div style="font-size: 3rem; margin: 15px 0; color: var(--accent); font-weight:bold;" id="lvl-score">0</div>
+        <p id="lvl-msg" style="color: #666; padding: 0 20px;">解析...</p>
+    </div>
+    <button class="btn" onclick="game.nextLevel()">进入下一关</button>
+    <div class="footer">© 2026 拿城华人圣经教会 | 版权所有</div>
+</div>
+
+<!-- SCREEN 4: FINAL -->
+<div id="screen-final" class="screen" style="justify-content: center; text-align: center; background: #fff;">
+    <h1 style="margin-top: 30px;">🏆 挑战结束</h1>
+    <p>你的最终成绩</p>
+    <div style="font-size: 3.2rem; color: var(--accent); font-weight: bold;" id="final-score">0</div>
+    <div id="final-rank" style="background: #f4f6f7; padding: 16px; margin: 20px; border-radius: 20px; color: #34495e;"></div>
+    
+    <button class="btn" onclick="location.reload()">重新开始</button>
+    <div class="footer">© 2026 拿城华人圣经教会 | 版权所有</div>
+</div>
+
+<script>
+/* --- 终极题库 (45题) 完整保留 --- */
+const LEVELS = [
+    {
+        title: "第一关：基督的超越 (1-2章)",
+        type: "choice",
+        data: [
+            { q: "基督用什么托住万有？", options: ["A. 他的大能", "B. 他的权柄", "C. 他权能的命令", "D. 他的智慧"], ans: 2, exp: "1:3 用他权能的命令托住万有。" },
+            { q: "神引用诗篇哪一篇说'你是我的儿子，我今日生你'？", options: ["A. 诗篇 2篇", "B. 诗篇 23篇", "C. 诗篇 110篇", "D. 诗篇 8篇"], ans: 0, exp: "引用自诗篇 2:7，这是皇室登基诗，预表基督复活掌权。" },
+            { q: "当神让长子到世上来时，吩咐谁要拜他？", options: ["A. 万国万民", "B. 所有的天使", "C. 摩西与以利亚", "D. 鬼魔"], ans: 1, exp: "1:6 神的使者都要拜他。" },
+            { q: "论到子却说：神啊，你的什么是永永远远的？", options: ["A. 慈爱", "B. 宝座", "C. 圣殿", "D. 应许"], ans: 1, exp: "1:8 你的宝座是永永远远的。" },
+            { q: "天使的职能不包括以下哪项？", options: ["A. 服役的灵", "B. 奉差遣", "C. 为信徒效力", "D. 治理未来的世界"], ans: 3, exp: "2:5 明确说神没有把'将来的世界'交给天使管辖。" },
+            { q: "我们当越发郑重所听见的道理，恐怕我们会有什么样的结果？", options: ["A. 离弃正道", "B. 随流失去", "C. 失去奖赏", "D. 被人迷惑"], ans: 1, exp: "2:1 '随流失去'，指船只无锚漂走。" },
+            { q: "我们看见耶稣因为受死的苦，就得了什么为冠冕？", options: ["A. 荆棘", "B. 尊贵荣耀", "C. 公义", "D. 圣灵"], ans: 1, exp: "2:9 得了尊贵荣耀为冠冕。" },
+            { q: "耶稣被称为我们救恩的什么？", options: ["A. 元帅", "B. 磐石", "C. 房角石", "D. 羔羊"], ans: 0, exp: "2:10 '救恩的元帅'，意为开路者、先锋。" },
+            { q: "因那使人成圣的和那些得以成圣的，都是出于什么？", options: ["A. 信心", "B. 亚伯拉罕", "C. 一", "D. 恩典"], ans: 2, exp: "2:11 '都是出于一' (都源于父神)。" },
+            { q: "基督藉着死，是为了败坏那掌死权的。谁是掌死权的？", options: ["A. 罪", "B. 律法", "C. 魔鬼", "D. 世界"], ans: 2, exp: "2:14 败坏那掌死权的，就是魔鬼。" },
+            { q: "他并不救拔天使，乃是救拔谁？", options: ["A. 凡信他的人", "B. 亚伯拉罕的后裔", "C. 所有的罪人", "D. 以色列家"], ans: 1, exp: "2:16 乃是救拔亚伯拉罕的后裔。" },
+            { q: "他必须凡事该与他的弟兄相同，为要成为怎样的祭司？", options: ["A. 圣洁无瑕的", "B. 慈悲忠信的", "C. 尊贵荣耀的", "D. 更有能力的"], ans: 1, exp: "2:17 成为慈悲忠信的大祭司。" },
+            { q: "既然他自己被试探而受苦，就能如何？", options: ["A. 审判世界", "B. 胜过魔鬼", "C. 搭救被试探的人", "D. 使人无罪"], ans: 2, exp: "2:18 就能搭救被试探的人。" },
+            { q: "神的儿子喜爱公义，恨恶罪恶，所以神用什么膏抹基督？", options: ["A. 圣灵", "B. 喜乐油", "C. 没药", "D. 能力"], ans: 1, exp: "1:9 用喜乐油膏你，胜过膏你的同伴。" },
+            { q: "洗净了人的罪，就坐在高天谁的右边？", options: ["A. 宝座", "B. 至大者", "C. 父神", "D. 荣耀"], ans: 1, exp: "1:3 至大者。" }
+        ]
+    },
+    {
+        title: "第二关：警告与安息 (3-4章)",
+        type: "puzzle",
+        data: [
+            { q: "还原关于基督与摩西的对比：", parts: ["因为房屋", "都必有人建造", "但建造万物的", "就是神"], order: [0, 1, 2, 3], exp: "3:4 因为房屋都必有人建造，但建造万物的就是神。" },
+            { q: "还原我们作为神家的条件：", parts: ["坚持到底", "若将", "可夸的盼望", "和胆量"], order: [1, 2, 3, 0], exp: "3:6 若将可夸的盼望和胆量坚持到底，" },
+            { q: "还原旷野的警告：", parts: ["像在旷野", "惹他发怒", "不可硬着心", "试探他的时候一样"], order: [2, 0, 1, 3], exp: "3:8 不可硬着心，像在旷野，惹他发怒，试探他的时候一样。" },
+            { q: "还原严重的警告：", parts: ["存着不信", "把永生神", "的恶心", "离弃了"], order: [0, 2, 1, 3], exp: "3:12 存着不信的恶心，把永生神离弃了。" },
+            { q: "还原彼此相劝的目的：", parts: ["心里就", "刚硬了", "被罪迷惑", "免得你们中间有人"], order: [3, 2, 0, 1], exp: "3:13 免得你们中间有人被罪迷惑，心里就刚硬了。" },
+            { q: "还原有份于基督的条件：", parts: ["起初", "坚持到底", "确实的信心", "我们若将"], order: [3, 0, 2, 1], exp: "3:14 我们若将起初确实的信心坚持到底。" },
+            { q: "还原道无益处的原因：", parts: ["与所听见的道", "调和", "因为他们", "没有信心"], order: [2, 3, 0, 1], exp: "4:2 因为他们没有信心与所听见的道调和。" },
+            { q: "还原安息的应许：", parts: ["必另有", "为神的子民", "一安息日的安息", "存留"], order: [0, 2, 1, 3], exp: "4:9 必另有一安息日的安息，为神的子民存留。" },
+            { q: "还原进入安息的定义：", parts: ["乃是歇了自己的工", "因为那", "正如神歇了他的工一样", "进入安息的"], order: [1, 3, 0, 2], exp: "4:10 因为那进入安息的，乃是歇了自己的工，正如神歇了他的工一样。" },
+            { q: "还原竭力的呼召：", parts: ["免得有人", "那不信从的", "务要竭力", "学"], order: [2, 0, 3, 1], exp: "4:11 务要竭力，免得有人学那不信从的" },
+            { q: "还原神道的特性：", parts: ["是有功效的", "比一切两刃的剑", "更快", "神的道是活泼的"], order: [3, 0, 1, 2], exp: "4:12 神的道是活泼的，是有功效的，比一切两刃的剑更快。" },
+            { q: "还原神道的穿透力：", parts: ["骨节与骨髓", "都能", "刺入剖开", "魂与灵"], order: [3, 0, 1, 2], exp: "4:12 魂与灵，骨节与骨髓，都能刺入剖开。" },
+            { q: "还原在神面前的状态：", parts: ["万物", "赤露敞开的", "在他眼前", "都是"], order: [0, 2, 3, 1], exp: "4:13 万物在他眼前都是赤露敞开的。" },
+            { q: "还原大祭司的描述：", parts: ["已经升入高天", "尊荣的", "既然有一位", "大祭司"], order: [2, 0, 1, 3], exp: "4:14 既然有一位已经升入高天尊荣的大祭司。" },
+            { q: "还原施恩座的目的：", parts: ["蒙恩惠", "作随时的帮助", "得怜恤", "为要"], order: [3, 2, 0, 1], exp: "4:16 为要得怜恤，蒙恩惠，作随时的帮助。" }
+        ]
+    },
+    {
+        title: "第三关：成熟与应许 (5-6章)",
+        type: "cloze",
+        data: [
+            { text: "凡从人间挑选的大祭司，是奉派替人办理___的事。", options: ["律法", "圣殿", "属神", "献祭"], ans: "属神", exp: "5:1 奉派替人办理属神的事。" },
+            { text: "他能体谅那___和失迷的人，因为他自己也是被软弱所困。", options: ["犯罪的", "愚蒙的", "贫穷的", "软弱的"], ans: "愚蒙的", exp: "5:2 体谅那愚蒙的和失迷的人。" },
+            { text: "这大祭司的尊荣，没有人自取，惟要蒙神所召，像___一样。", options: ["摩西", "亚伦", "大卫", "撒母耳"], ans: "亚伦", exp: "5:4 惟要蒙神所召，像亚伦一样。" },
+            { text: "基督在肉体的时候，既大声哀哭，流泪祷告，就因他的___蒙了应允。", options: ["信心", "虔诚", "苦难", "顺服"], ans: "虔诚", exp: "5:7 因他的虔诚蒙了应允。" },
+            { text: "他虽然为儿子，还是因所受的苦难学了___。", options: ["忍耐", "谦卑", "顺从", "智慧"], ans: "顺从", exp: "5:8 因所受的苦难学了顺从。" },
+            { text: "他既得以完全，就为凡顺从他的人成了永远___的根源。", options: ["得救", "生命", "荣耀", "安息"], ans: "得救", exp: "5:9 永远得救的根源。" },
+            { text: "你们本该作师傅，谁知还得有人将神圣言小学的___教导你们。", options: ["道理", "开端", "精意", "奥秘"], ans: "开端", exp: "5:12 神圣言小学的开端。" },
+            { text: "凡只能吃奶的就不熟练___的道理，因为他是婴孩。", options: ["救恩", "仁义", "律法", "悔改"], ans: "仁义", exp: "5:13 仁义的道理。" },
+            { text: "惟独长大成人的才能吃干粮；他们的___习练得通达。", options: ["心窍", "口才", "知识", "灵性"], ans: "心窍", exp: "5:14 心窍习练得通达。" },
+            { text: "我们应当离开基督道理的开端，竭力进到___的地步。", options: ["成圣", "完全", "荣耀", "得胜"], ans: "完全", exp: "6:1 竭力进到完全的地步。" },
+            { text: "离弃道理的人，因为他们把神的儿子___，明明的羞辱他。", options: ["忘了", "卖了", "重钉十字架", "再次否认"], ans: "重钉十字架", exp: "6:6 把神的儿子重钉十字架。" },
+            { text: "神并非不公义，竟忘记你们的工和你们为他名所显的___。", options: ["信心", "爱心", "盼望", "热心"], ans: "爱心", exp: "6:10 所显的爱心。" },
+            { text: "并且不懈怠，总要效法那些凭___和忍耐承受应许的人。", options: ["信心", "劳苦", "智慧", "圣洁"], ans: "信心", exp: "6:12 凭信心和忍耐承受应许的人。" },
+            { text: "藉这两件不更改的事，叫我们这___、持定摆在我们前头指望的人可以大得勉励。", options: ["信靠", "逃往避难所", "蒙拣选", "受苦"], ans: "逃往避难所", exp: "6:18 逃往避难所持定指望。" },
+            { text: "我们有这指望，如同灵魂的锚，又坚固又牢靠，且通入___。", options: ["至圣所", "幔内", "天上", "神前"], ans: "幔内", exp: "6:19 又坚固又牢靠，且通入幔内。" }
+        ]
+    }
+];
+
+/* --- 游戏引擎 修复移动端按钮及填空渲染 --- */
+const game = {
+    lvlIdx: 0,
+    qIdx: 0,
+    score: 0,
+    currentQ: null,
+    userAns: null,
+    puzzleState: [],
+    
+    start: function() {
+        this.lvlIdx = 0;
+        this.qIdx = 0;
+        this.score = 0;
+        this.switchScreen('screen-game');
+        this.loadQuestion();
+    },
+
+    loadQuestion: function() {
+        const level = LEVELS[this.lvlIdx];
+        this.currentQ = level.data[this.qIdx];
+        
+        document.getElementById('hud-level').innerHTML = `第 ${this.lvlIdx + 1} 关`;
+        document.getElementById('hud-progress').innerHTML = `${this.qIdx + 1} / ${level.data.length}`;
+        document.getElementById('hud-score').innerHTML = `${this.score}`;
+        
+        // 填空时题干上方显示经文原文
+        const qTextElem = document.getElementById('q-text');
+        if (level.type === 'cloze') {
+            qTextElem.innerText = ''; // 填空内容在交互区完整显示，避免重复
+        } else {
+            qTextElem.innerText = this.currentQ.q || this.currentQ.text;
+        }
+        document.getElementById('q-type-tag').innerText = level.type === 'choice' ? '📖 单选题' : (level.type === 'puzzle' ? '🧩 经文拼图' : '✍️ 关键填空');
+        
+        const area = document.getElementById('interaction-area');
+        area.innerHTML = '';
+        document.getElementById('feedback-box').className = 'feedback';
+        document.getElementById('btn-check').style.display = 'block';
+        document.getElementById('btn-next').style.display = 'none';
+        this.userAns = null;
+        
+        if (level.type === 'choice') this.renderChoice(area);
+        else if (level.type === 'puzzle') this.renderPuzzle(area);
+        else if (level.type === 'cloze') this.renderCloze(area);
+    },
+
+    renderChoice: function(container) {
+        container.className = 'options-list';
+        this.currentQ.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerText = opt;
+            btn.onclick = () => {
+                document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                this.userAns = idx;
+            };
+            container.appendChild(btn);
+        });
+    },
+
+    renderPuzzle: function(container) {
+        container.innerHTML = `
+            <div id="puzzle-target" class="puzzle-area"></div>
+            <div id="puzzle-source" class="puzzle-source"></div>
+        `;
+        this.puzzleState = [];
+        const parts = this.currentQ.parts.map((text, idx) => ({text, idx}));
+        parts.sort(() => Math.random() - 0.5);
+        const sourceDiv = document.getElementById('puzzle-source');
+        parts.forEach(p => {
+            const piece = document.createElement('div');
+            piece.className = 'puzzle-piece';
+            piece.innerText = p.text;
+            piece.onclick = (e) => this.handlePuzzleClick(p, e.target);
+            sourceDiv.appendChild(piece);
+        });
+    },
+
+    handlePuzzleClick: function(partObj, domEl) {
+        if (domEl.classList.contains('used')) return;
+        this.puzzleState.push(partObj.idx);
+        const targetDiv = document.getElementById('puzzle-target');
+        const clone = document.createElement('div');
+        clone.className = 'puzzle-piece';
+        clone.innerText = partObj.text;
+        clone.onclick = () => {
+            const idxPos = this.puzzleState.findIndex(v => v === partObj.idx);
+            if (idxPos !== -1) this.puzzleState.splice(idxPos, 1);
+            clone.remove();
+            const sourcePieces = document.querySelectorAll('#puzzle-source .puzzle-piece');
+            for (let sp of sourcePieces) {
+                if (sp.innerText === partObj.text && sp.classList.contains('used')) {
+                    sp.classList.remove('used');
+                    break;
+                }
+            }
+        };
+        targetDiv.appendChild(clone);
+        domEl.classList.add('used');
+    },
+
+    renderCloze: function(container) {
+        // 修复重复显示: 不额外显示原始题干之外的文字，只渲染填空句子
+        const raw = this.currentQ.text;
+        const parts = raw.split(/(___)/g);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'cloze-text';
+        parts.forEach(part => {
+            if (part === '___') {
+                const gapSpan = document.createElement('span');
+                gapSpan.className = 'cloze-gap';
+                gapSpan.id = 'dynamic-gap';
+                gapSpan.innerText = '?';
+                wrapper.appendChild(gapSpan);
+            } else {
+                const txtSpan = document.createElement('span');
+                txtSpan.innerText = part;
+                wrapper.appendChild(txtSpan);
+            }
+        });
+        const optsDiv = document.createElement('div');
+        optsDiv.className = 'cloze-options';
+        this.currentQ.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'cloze-btn';
+            btn.innerText = opt;
+            btn.onclick = () => {
+                const gapSpan = document.getElementById('dynamic-gap');
+                if (gapSpan) gapSpan.innerText = opt;
+                document.querySelectorAll('.cloze-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.userAns = opt;
+            };
+            optsDiv.appendChild(btn);
+        });
+        container.appendChild(wrapper);
+        container.appendChild(optsDiv);
+    },
+
+    checkAnswer: function() {
+        const type = LEVELS[this.lvlIdx].type;
+        let isCorrect = false;
+        if (type === 'choice') {
+            if (this.userAns === null) return alert("请先选择一个答案");
+            isCorrect = (this.userAns === this.currentQ.ans);
+            const btns = document.querySelectorAll('.opt-btn');
+            if(isCorrect) btns[this.userAns].classList.add('correct');
+            else { btns[this.userAns].classList.add('wrong'); btns[this.currentQ.ans].classList.add('correct'); }
+        } else if (type === 'puzzle') {
+            if (this.puzzleState.length !== this.currentQ.order.length) return alert("请将所有词块放入上方区域");
+            isCorrect = JSON.stringify(this.puzzleState) === JSON.stringify(this.currentQ.order);
+        } else if (type === 'cloze') {
+            if (!this.userAns) return alert("请点击词汇填空");
+            isCorrect = (this.userAns === this.currentQ.ans);
+        }
+        if (isCorrect) this.score += 10;
+        const fbBox = document.getElementById('feedback-box');
+        fbBox.classList.add('show');
+        fbBox.className = isCorrect ? 'feedback show correct' : 'feedback show wrong';
+        document.getElementById('fb-title').innerHTML = isCorrect ? "✅ 回答正确" : "❌ 答案错误";
+        document.getElementById('fb-msg').innerHTML = this.currentQ.exp;
+        document.getElementById('btn-check').style.display = 'none';
+        document.getElementById('btn-next').style.display = 'block';
+        document.querySelector('.q-card').scrollTop = document.querySelector('.q-card').scrollHeight;
+    },
+
+    nextQuestion: function() {
+        this.qIdx++;
+        if (this.qIdx < LEVELS[this.lvlIdx].data.length) this.loadQuestion();
+        else this.endLevel();
+    },
+
+    endLevel: function() {
+        document.getElementById('lvl-title').innerHTML = `🎉 第 ${this.lvlIdx + 1} 关通过！`;
+        document.getElementById('lvl-score').innerHTML = `${this.score}`;
+        let praise = (this.score >= (this.lvlIdx+1)*150 - 30) ? "惊人的表现！" : "做得好！继续努力！";
+        document.getElementById('lvl-msg').innerHTML = praise;
+        if (this.lvlIdx < LEVELS.length - 1) this.switchScreen('screen-level');
+        else this.endGame();
+    },
+
+    nextLevel: function() { this.lvlIdx++; this.qIdx = 0; this.startLevel(); },
+    startLevel: function() { this.switchScreen('screen-game'); this.loadQuestion(); },
+    endGame: function() {
+        this.switchScreen('screen-final');
+        document.getElementById('final-score').innerHTML = this.score;
+        const p = this.score / 450;
+        let rank = p>=0.9 ? "🏆 神学大师级" : (p>=0.7 ? "📜 优秀研经者" : (p>=0.5 ? "🌱 成长的门徒" : "🍼 起步阶段"));
+        document.getElementById('final-rank').innerHTML = rank + "<br>继续扎根圣言！";
+    },
+    switchScreen: function(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+};
+</script>
+</body>
+</html>
