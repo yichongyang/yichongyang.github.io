@@ -11,35 +11,40 @@
   .header h1{font-size:1.5rem;font-weight:700;letter-spacing:1px}
   .header p{font-size:.8rem;opacity:.75;margin-top:6px}
   .tabs{display:flex;background:#fff;border-bottom:2px solid #e0e5f0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .tab{flex:1;padding:12px 8px;text-align:center;font-size:.82rem;font-weight:600;color:#6b7a99;cursor:pointer;border:none;background:none;white-space:nowrap;transition:color .2s,border-bottom .2s}
+  .tab{flex:1;padding:12px 8px;text-align:center;font-size:.82rem;font-weight:600;color:#6b7a99;cursor:pointer;border:none;background:none;white-space:nowrap;transition:color .2s}
   .tab.active{color:#1e3a6e;border-bottom:3px solid #1e3a6e}
   .section{display:none;padding:16px;max-width:480px;margin:0 auto}
   .section.active{display:block}
-
-  /* ===== GAME 1: Memory Cards ===== */
   .game-title{font-size:1rem;font-weight:700;color:#1e3a6e;margin-bottom:6px}
   .game-desc{font-size:.78rem;color:#6b7a99;margin-bottom:14px;line-height:1.5}
-  .score-bar{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-  .score-label{font-size:.78rem;color:#6b7a99}
-  .score-val{font-size:1rem;font-weight:700;color:#1e3a6e}
-  .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-  .card{height:110px;perspective:700px;cursor:pointer}
-  .card-inner{width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d;position:relative}
-  .card.flipped .card-inner,.card.matched .card-inner{transform:rotateY(180deg)}
-  .card-front,.card-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center}
-  .card-front{background:linear-gradient(135deg,#1e3a6e,#2d5299);color:#fff;font-size:1.6rem}
-  .card-front .ch-hint{font-size:.65rem;opacity:.7;margin-top:4px;letter-spacing:.5px}
-  .card-back{background:#fff;border:3px solid #dce3f5;transform:rotateY(180deg);font-size:.75rem;color:#1e2a4a;line-height:1.5;font-weight:600}
-  .card-back .card-ref{font-size:.6rem;color:#8b95b0;margin-top:6px;font-weight:400}
-  .card.matched .card-back{border-color:#6ecfa0}
-  .card.wrong-flash .card-back{border-color:#f0a0a0;background:#fff8f8}
   .btn{display:block;width:100%;padding:12px;border:none;border-radius:14px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:14px;transition:opacity .2s}
   .btn-primary{background:linear-gradient(135deg,#1e3a6e,#2d5299);color:#fff}
   .btn-gold{background:linear-gradient(135deg,#b8731a,#d4922a);color:#fff}
   .btn:active{opacity:.85}
-  .win-msg{text-align:center;padding:18px;background:linear-gradient(135deg,#f0fff6,#e8f5ff);border-radius:16px;border:2px solid #6ecfa0;margin-top:14px}
+  .win-msg{text-align:center;padding:20px;background:linear-gradient(135deg,#f0fff6,#e8f5ff);border-radius:16px;border:2px solid #6ecfa0;margin-top:14px}
   .win-msg h2{font-size:1.3rem;color:#1e7a4a;margin-bottom:6px}
   .win-msg p{font-size:.82rem;color:#3a6b50}
+
+  /* ===== GAME 1: Two-column match ===== */
+  .match-status{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:12px;padding:10px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .match-status-label{font-size:.75rem;color:#6b7a99}
+  .match-status-val{font-size:1.05rem;font-weight:700;color:#1e3a6e}
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+  .col-header{text-align:center;font-size:.72rem;font-weight:700;color:#fff;padding:6px 0;border-radius:8px;margin-bottom:4px}
+  .col-header.left{background:#2d5299}
+  .col-header.right{background:#b8731a}
+  .mcol{display:flex;flex-direction:column;gap:7px}
+  .mcard{padding:11px 9px;border-radius:12px;border:2px solid #dce3f5;background:#fff;font-size:.75rem;font-weight:600;color:#1e2a4a;cursor:pointer;line-height:1.45;text-align:center;transition:all .18s;user-select:none;position:relative;min-height:62px;display:flex;align-items:center;justify-content:center}
+  .mcard.selected{border-color:#2d5299;background:#eef3ff;color:#1e3a6e;box-shadow:0 0 0 3px rgba(45,82,153,.18)}
+  .mcard.matched{border-color:#6ecfa0;background:#f0fff6;color:#1e6a40;cursor:default;pointer-events:none}
+  .mcard.wrong{border-color:#f0a0a0;background:#fff2f2;color:#c03030;animation:shake .4s ease}
+  .mcard.ref{font-size:.82rem;font-weight:700;color:#7a4a10}
+  .mcard.ref.matched{color:#1e6a40}
+  .mcard.ref.selected{border-color:#b8731a;background:#fff8ec;color:#7a4a10;box-shadow:0 0 0 3px rgba(184,115,26,.18)}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  .match-msg{text-align:center;font-size:.82rem;padding:10px;border-radius:10px;margin-top:10px;font-weight:600;display:none}
+  .match-msg.error{background:#fff2f2;color:#c03030;border:1px solid #f0a0a0;display:block}
+  .attempts-bar{font-size:.75rem;color:#6b7a99;text-align:center;margin-top:6px}
 
   /* ===== GAME 2: Who Am I ===== */
   .who-card{background:#fff;border-radius:18px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px}
@@ -76,7 +81,6 @@
   .check-result.wrong{background:#fff5f5;color:#c03030;display:block}
   .verse-counter{font-size:.78rem;color:#6b7a99;text-align:right;margin-bottom:8px}
 
-  /* Shared */
   .section-gap{height:24px}
 </style>
 </head>
@@ -88,35 +92,37 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="switchTab(0)">🃏 翻牌记忆</button>
+  <button class="tab active" onclick="switchTab(0)">🔗 经文配对</button>
   <button class="tab" onclick="switchTab(1)">🔍 猜猜我是谁</button>
   <button class="tab" onclick="switchTab(2)">📝 经文排序</button>
 </div>
 
-<!-- ===== TAB 1: Memory Match ===== -->
+<!-- ===== TAB 1: Two-Column Match ===== -->
 <div class="section active" id="tab0">
   <div class="section-gap"></div>
-  <p class="game-title">🃏 翻牌记忆游戏</p>
-  <p class="game-desc">翻开两张卡片，将经文的上半句与下半句配对。卡片背面颜色代表章节，可作为提示！找到所有6对即可获胜！</p>
-  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;font-size:.72rem;">
-    <span style="background:#dbeafe;color:#1d4ed8;padding:3px 8px;border-radius:20px;">● 第一章</span>
-    <span style="background:#dcfce7;color:#166534;padding:3px 8px;border-radius:20px;">● 第二章</span>
-    <span style="background:#ede9fe;color:#5b21b6;padding:3px 8px;border-radius:20px;">● 第三章</span>
-    <span style="background:#fef9c3;color:#854d0e;padding:3px 8px;border-radius:20px;">● 第四章</span>
-    <span style="background:#ffedd5;color:#9a3412;padding:3px 8px;border-radius:20px;">● 第五章</span>
-    <span style="background:#fce7f3;color:#9d174d;padding:3px 8px;border-radius:20px;">● 第六章</span>
+  <p class="game-title">🔗 经文配对</p>
+  <p class="game-desc">点选左边一节经文，再点选右边对应的出处，完成配对。出错一次，所有已配对的进度将清零重新开始！</p>
+  <div class="match-status">
+    <div><div class="match-status-label">已完成</div><div class="match-status-val" id="m-matched">0 / 6</div></div>
+    <div><div class="match-status-label">出错次数</div><div class="match-status-val" id="m-errors">0</div></div>
+    <div><div class="match-status-label">尝试次数</div><div class="match-status-val" id="m-attempts">0</div></div>
   </div>
-  <div class="score-bar">
-    <div><div class="score-label">已配对</div><div class="score-val" id="matched-count">0 / 6</div></div>
-    <div><div class="score-label">翻牌次数</div><div class="score-val" id="flip-count">0</div></div>
-    <div><div class="score-label">错误</div><div class="score-val" id="wrong-count">0</div></div>
+  <div class="match-grid">
+    <div>
+      <div class="col-header left">经　文</div>
+      <div class="mcol" id="verse-col"></div>
+    </div>
+    <div>
+      <div class="col-header right">出　处</div>
+      <div class="mcol" id="ref-col"></div>
+    </div>
   </div>
-  <div class="cards-grid" id="cards-grid"></div>
+  <div class="match-msg" id="match-msg"></div>
   <div class="win-msg" id="win-msg" style="display:none">
-    <h2>🎉 恭喜完成！</h2>
+    <h2>🎉 全部配对成功！</h2>
     <p id="win-detail"></p>
   </div>
-  <button class="btn btn-primary" onclick="initMemory()">🔄 重新开始</button>
+  <button class="btn btn-primary" onclick="initMatch()" style="margin-top:14px">🔄 重新开始</button>
 </div>
 
 <!-- ===== TAB 2: Who Am I ===== -->
@@ -147,7 +153,7 @@
     <div class="verse-ref" id="verse-ref"></div>
     <div class="verse-hint" id="verse-hint"></div>
   </div>
-  <div class="answer-zone" id="answer-zone" onclick="removeLastWord()"></div>
+  <div class="answer-zone" id="answer-zone"></div>
   <div class="word-chips" id="word-chips"></div>
   <div class="check-result" id="check-result"></div>
   <div style="display:flex;gap:8px;margin-top:10px">
@@ -167,113 +173,131 @@ function switchTab(i){
   document.querySelectorAll('.section').forEach((s,j)=>s.classList.toggle('active',i===j));
 }
 
-// ===================== GAME 1: MEMORY =====================
-// Each pair: firstHalf matches secondHalf. Chapter color helps as a hint.
-const memoryPairs = [
-  {
-    ref:'希伯来书 1:1-2', ch:1,
-    bg:'#dbeafe', border:'#93c5fd', text:'#1d4ed8',
-    firstHalf:'神既在古时借着众先知，多次多方地晓谕列祖，',
-    secondHalf:'就在这末世，借着他儿子晓谕我们。'
-  },
-  {
-    ref:'希伯来书 2:18', ch:2,
-    bg:'#dcfce7', border:'#6ee7b7', text:'#166534',
-    firstHalf:'他自己既然被试探而受苦，',
-    secondHalf:'就能搭救被试探的人。'
-  },
-  {
-    ref:'希伯来书 3:6', ch:3,
-    bg:'#ede9fe', border:'#c4b5fd', text:'#5b21b6',
-    firstHalf:'基督为儿子，治理神的家；',
-    secondHalf:'我们若将可夸的盼望和胆量坚持到底，便是他的家了。'
-  },
-  {
-    ref:'希伯来书 4:12', ch:4,
-    bg:'#fef9c3', border:'#fde047', text:'#854d0e',
-    firstHalf:'神的道是活泼的，是有功效的，比一切两刃的剑更快，',
-    secondHalf:'连心中的思念和主意都能辨明。'
-  },
-  {
-    ref:'希伯来书 5:8', ch:5,
-    bg:'#ffedd5', border:'#fdba74', text:'#9a3412',
-    firstHalf:'他虽然为儿子，',
-    secondHalf:'还是因所受的苦难学了顺从。'
-  },
-  {
-    ref:'希伯来书 6:19', ch:6,
-    bg:'#fce7f3', border:'#f9a8d4', text:'#9d174d',
-    firstHalf:'我们有这指望，',
-    secondHalf:'如同灵魂的锚，又坚固又牢靠。'
-  },
+// ===================== GAME 1: TWO-COLUMN MATCH =====================
+const matchPairs = [
+  {verse:'他是神荣耀所发的光辉，是神本体的真像，常用他权能的命令托住万有。', ref:'希伯来书 1:3'},
+  {verse:'他自己既然被试探而受苦，就能搭救被试探的人。', ref:'希伯来书 2:18'},
+  {verse:'基督为儿子，治理神的家；我们若将可夸的盼望和胆量坚持到底，便是他的家了。', ref:'希伯来书 3:6'},
+  {verse:'神的道是活泼的，是有功效的，比一切两刃的剑更快，连心中的思念和主意都能辨明。', ref:'希伯来书 4:12'},
+  {verse:'他虽然为儿子，还是因所受的苦难学了顺从。', ref:'希伯来书 5:8'},
+  {verse:'我们有这指望，如同灵魂的锚，又坚固又牢靠，且伸入帐幔内。', ref:'希伯来书 6:19'},
 ];
-
-let flipped=[], matched=0, flips=0, wrongs=0, canFlip=true;
 
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 
-function initMemory(){
-  flipped=[];matched=0;flips=0;wrongs=0;canFlip=true;
-  document.getElementById('matched-count').textContent='0 / 6';
-  document.getElementById('flip-count').textContent='0';
-  document.getElementById('wrong-count').textContent='0';
+let mSelectedVerse=null, mSelectedRef=null, mMatchedCount=0, mErrors=0, mAttempts=0, mLocked=false;
+let mVerseOrder=[], mRefOrder=[];
+
+function initMatch(){
+  mSelectedVerse=null; mSelectedRef=null;
+  mMatchedCount=0; mErrors=0; mAttempts=0; mLocked=false;
+  mVerseOrder=shuffle(matchPairs.map((_,i)=>i));
+  mRefOrder=shuffle(matchPairs.map((_,i)=>i));
+  document.getElementById('m-matched').textContent='0 / 6';
+  document.getElementById('m-errors').textContent='0';
+  document.getElementById('m-attempts').textContent='0';
+  document.getElementById('match-msg').style.display='none';
+  document.getElementById('match-msg').className='match-msg';
   document.getElementById('win-msg').style.display='none';
-  const cards=[];
-  memoryPairs.forEach((p,i)=>{
-    cards.push({pair:i,type:'first',label:p.firstHalf,ref:p.ref,bg:p.bg,border:p.border,color:p.text,ch:p.ch});
-    cards.push({pair:i,type:'second',label:p.secondHalf,ref:p.ref,bg:p.bg,border:p.border,color:p.text,ch:p.ch});
-  });
-  const grid=document.getElementById('cards-grid');
-  grid.innerHTML='';
-  shuffle(cards).forEach(c=>{
+  renderMatchCols();
+}
+
+function renderMatchCols(){
+  const vc=document.getElementById('verse-col');
+  const rc=document.getElementById('ref-col');
+  vc.innerHTML=''; rc.innerHTML='';
+
+  mVerseOrder.forEach(idx=>{
+    const p=matchPairs[idx];
     const el=document.createElement('div');
-    el.className='card';
-    el.dataset.pair=c.pair;
-    el.dataset.type=c.type;
-    el.innerHTML=`
-      <div class="card-inner">
-        <div class="card-front">
-          📖
-          <span class="ch-hint">第${c.ch}章</span>
-        </div>
-        <div class="card-back" style="background:${c.bg};border-color:${c.border};color:${c.color}">
-          <span>${c.label}</span>
-          <span class="card-ref" style="color:${c.color};opacity:.6">${c.ref}</span>
-        </div>
-      </div>`;
-    el.addEventListener('click',()=>flipCard(el));
-    grid.appendChild(el);
+    el.className='mcard';
+    el.dataset.idx=idx;
+    el.dataset.col='verse';
+    el.textContent=p.verse;
+    el.addEventListener('click',()=>onSelectVerse(el));
+    vc.appendChild(el);
+  });
+
+  mRefOrder.forEach(idx=>{
+    const p=matchPairs[idx];
+    const el=document.createElement('div');
+    el.className='mcard ref';
+    el.dataset.idx=idx;
+    el.dataset.col='ref';
+    el.textContent=p.ref;
+    el.addEventListener('click',()=>onSelectRef(el));
+    rc.appendChild(el);
   });
 }
 
-function flipCard(el){
-  if(!canFlip||el.classList.contains('flipped')||el.classList.contains('matched')) return;
-  el.classList.add('flipped');
-  flipped.push(el);
-  if(flipped.length===2){
-    flips++;
-    document.getElementById('flip-count').textContent=flips;
-    canFlip=false;
-    const [a,b]=flipped;
-    if(a.dataset.pair===b.dataset.pair&&a.dataset.type!==b.dataset.type){
-      a.classList.add('matched');b.classList.add('matched');
-      matched++;
-      document.getElementById('matched-count').textContent=matched+' / 6';
-      flipped=[];canFlip=true;
-      if(matched===6){
-        document.getElementById('win-msg').style.display='block';
-        document.getElementById('win-detail').textContent=`翻牌 ${flips} 次，错误 ${wrongs} 次完成！你对这些经文很熟悉！`;
-      }
-    } else {
-      wrongs++;
-      document.getElementById('wrong-count').textContent=wrongs;
-      a.classList.add('wrong-flash');b.classList.add('wrong-flash');
-      setTimeout(()=>{
-        a.classList.remove('flipped','wrong-flash');
-        b.classList.remove('flipped','wrong-flash');
-        flipped=[];canFlip=true;
-      },1000);
+function getVerseEl(idx){return document.querySelector(`#verse-col .mcard[data-idx="${idx}"]`)}
+function getRefEl(idx){return document.querySelector(`#ref-col .mcard[data-idx="${idx}"]`)}
+
+function onSelectVerse(el){
+  if(mLocked||el.classList.contains('matched')) return;
+  document.querySelectorAll('#verse-col .mcard.selected').forEach(e=>e.classList.remove('selected'));
+  mSelectedVerse=el;
+  el.classList.add('selected');
+  if(mSelectedRef) tryMatch();
+}
+
+function onSelectRef(el){
+  if(mLocked||el.classList.contains('matched')) return;
+  document.querySelectorAll('#ref-col .mcard.selected').forEach(e=>e.classList.remove('selected'));
+  mSelectedRef=el;
+  el.classList.add('selected');
+  if(mSelectedVerse) tryMatch();
+}
+
+function tryMatch(){
+  const vIdx=parseInt(mSelectedVerse.dataset.idx);
+  const rIdx=parseInt(mSelectedRef.dataset.idx);
+  mAttempts++;
+  document.getElementById('m-attempts').textContent=mAttempts;
+  mLocked=true;
+
+  const msg=document.getElementById('match-msg');
+
+  if(vIdx===rIdx){
+    // Correct!
+    mSelectedVerse.classList.remove('selected');
+    mSelectedRef.classList.remove('selected');
+    mSelectedVerse.classList.add('matched');
+    mSelectedRef.classList.add('matched');
+    mMatchedCount++;
+    document.getElementById('m-matched').textContent=mMatchedCount+' / 6';
+    mSelectedVerse=null; mSelectedRef=null;
+    msg.style.display='none';
+    mLocked=false;
+
+    if(mMatchedCount===6){
+      document.getElementById('win-msg').style.display='block';
+      const perfect=mErrors===0;
+      document.getElementById('win-detail').textContent=
+        perfect
+          ? '太厉害了！一次出错都没有，你对希伯来书的经文了如指掌！'
+          : `共出错 ${mErrors} 次，尝试 ${mAttempts} 次完成。继续加油！`;
     }
+  } else {
+    // Wrong — flash both red, then reset ALL progress
+    mErrors++;
+    document.getElementById('m-errors').textContent=mErrors;
+    mSelectedVerse.classList.add('wrong');
+    mSelectedRef.classList.add('wrong');
+    msg.className='match-msg error';
+    msg.textContent='❌ 配对错误！所有进度重置，请重新开始！';
+
+    setTimeout(()=>{
+      // Reset everything: remove all matched, wrong, selected states
+      document.querySelectorAll('.mcard').forEach(c=>{
+        c.classList.remove('matched','wrong','selected');
+      });
+      mMatchedCount=0;
+      document.getElementById('m-matched').textContent='0 / 6';
+      mSelectedVerse=null; mSelectedRef=null;
+      mLocked=false;
+      // Keep error/attempt counts
+    }, 1200);
   }
 }
 
@@ -408,7 +432,7 @@ function nextWho(){
 const verseData = [
   {
     ref:'希伯来书 1:3',
-    hint:'关于耶稣的身份（填写前半句）',
+    hint:'关于耶稣的身份',
     words:['他是','神荣耀所发的','光辉','是神','本体的','真像'],
     answer:'他是 神荣耀所发的 光辉 是神 本体的 真像'
   },
@@ -479,17 +503,18 @@ function renderOrderUI(){
   const wc=document.getElementById('word-chips');
   wc.innerHTML='';
   shuffledWords.forEach((w,i)=>{
+    const used=selectedWords.includes(w)&&selectedWords.indexOf(w)<=selectedWords.lastIndexOf(w);
     const c=document.createElement('div');
     c.className='chip'+(selectedWords.includes(w)?' used':'');
     c.textContent=w;
     c.dataset.idx=i;
-    c.onclick=()=>addWord(w,c);
+    c.onclick=()=>addWord(w);
     wc.appendChild(c);
   });
 }
 
-function addWord(w,el){
-  if(el.classList.contains('used')) return;
+function addWord(w){
+  if(selectedWords.includes(w)) return;
   selectedWords.push(w);
   renderOrderUI();
 }
@@ -532,7 +557,7 @@ function nextVerse(){
 }
 
 // ===================== INIT =====================
-initMemory();
+initMatch();
 initWho();
 initOrder();
 </script>
