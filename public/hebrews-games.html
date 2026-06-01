@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>希伯来书趣味游戏 1-6章</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f8;min-height:100vh;color:#1e2a4a}
+  .header{background:linear-gradient(135deg,#1e3a6e 0%,#2d5299 60%,#c8902a 100%);padding:28px 20px 20px;text-align:center;color:#fff}
+  .header h1{font-size:1.5rem;font-weight:700;letter-spacing:1px}
+  .header p{font-size:.8rem;opacity:.75;margin-top:6px}
+  .tabs{display:flex;background:#fff;border-bottom:2px solid #e0e5f0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab{flex:1;padding:12px 8px;text-align:center;font-size:.82rem;font-weight:600;color:#6b7a99;cursor:pointer;border:none;background:none;white-space:nowrap;transition:color .2s,border-bottom .2s}
+  .tab.active{color:#1e3a6e;border-bottom:3px solid #1e3a6e}
+  .section{display:none;padding:16px;max-width:480px;margin:0 auto}
+  .section.active{display:block}
+
+  /* ===== GAME 1: Memory Cards ===== */
+  .game-title{font-size:1rem;font-weight:700;color:#1e3a6e;margin-bottom:6px}
+  .game-desc{font-size:.78rem;color:#6b7a99;margin-bottom:14px;line-height:1.5}
+  .score-bar{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .score-label{font-size:.78rem;color:#6b7a99}
+  .score-val{font-size:1rem;font-weight:700;color:#1e3a6e}
+  .cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .card{height:80px;perspective:600px;cursor:pointer}
+  .card-inner{width:100%;height:100%;transition:transform .4s;transform-style:preserve-3d;position:relative}
+  .card.flipped .card-inner,.card.matched .card-inner{transform:rotateY(180deg)}
+  .card-front,.card-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center}
+  .card-front{background:linear-gradient(135deg,#1e3a6e,#2d5299);color:#fff;font-size:1.4rem}
+  .card-back{background:#fff;border:2px solid #dce3f5;transform:rotateY(180deg);font-size:.7rem;color:#1e2a4a;line-height:1.4;font-weight:500}
+  .card.matched .card-back{background:#f0fff6;border-color:#6ecfa0}
+  .btn{display:block;width:100%;padding:12px;border:none;border-radius:14px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:14px;transition:opacity .2s}
+  .btn-primary{background:linear-gradient(135deg,#1e3a6e,#2d5299);color:#fff}
+  .btn-gold{background:linear-gradient(135deg,#b8731a,#d4922a);color:#fff}
+  .btn:active{opacity:.85}
+  .win-msg{text-align:center;padding:18px;background:linear-gradient(135deg,#f0fff6,#e8f5ff);border-radius:16px;border:2px solid #6ecfa0;margin-top:14px}
+  .win-msg h2{font-size:1.3rem;color:#1e7a4a;margin-bottom:6px}
+  .win-msg p{font-size:.82rem;color:#3a6b50}
+
+  /* ===== GAME 2: Who Am I ===== */
+  .who-card{background:#fff;border-radius:18px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px}
+  .clue-num{font-size:.72rem;color:#c8902a;font-weight:700;margin-bottom:8px;letter-spacing:1px}
+  .clue-text{font-size:.95rem;color:#1e2a4a;line-height:1.7;font-weight:500}
+  .clue-ref{font-size:.72rem;color:#8b95b0;margin-top:8px}
+  .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .opt-btn{padding:14px 8px;border-radius:14px;border:2px solid #dce3f5;background:#fff;font-size:.88rem;font-weight:600;color:#1e2a4a;cursor:pointer;transition:all .2s;text-align:center}
+  .opt-btn:active{transform:scale(.97)}
+  .opt-btn.correct{background:#f0fff6;border-color:#6ecfa0;color:#1e7a4a}
+  .opt-btn.wrong{background:#fff5f5;border-color:#f0a0a0;color:#c03030}
+  .opt-btn.reveal{background:#fffbf0;border-color:#d4922a;color:#8a5a10}
+  .feedback{padding:12px 16px;border-radius:12px;margin-top:12px;font-size:.82rem;line-height:1.5}
+  .feedback.correct{background:#f0fff6;color:#1e7a4a;border:1px solid #6ecfa0}
+  .feedback.wrong{background:#fff5f5;color:#c03030;border:1px solid #f0a0a0}
+  .progress-dots{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+  .dot{width:10px;height:10px;border-radius:50%;background:#dce3f5;transition:background .3s}
+  .dot.done{background:#1e3a6e}
+  .dot.current{background:#c8902a}
+  .who-score{text-align:center;font-size:.85rem;color:#6b7a99;margin-bottom:14px}
+
+  /* ===== GAME 3: Word Order ===== */
+  .verse-display{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:14px}
+  .verse-ref{font-size:.75rem;color:#c8902a;font-weight:700;margin-bottom:8px}
+  .verse-hint{font-size:.82rem;color:#6b7a99;line-height:1.6;margin-bottom:4px}
+  .answer-zone{min-height:60px;background:#f5f7ff;border:2px dashed #b0c0e8;border-radius:14px;padding:12px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-content:flex-start}
+  .word-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .chip{padding:8px 12px;background:#fff;border:2px solid #dce3f5;border-radius:20px;font-size:.82rem;font-weight:600;color:#1e2a4a;cursor:pointer;transition:all .2s;user-select:none}
+  .chip:active{transform:scale(.95)}
+  .chip.used{opacity:.35;pointer-events:none}
+  .chip.in-answer{background:linear-gradient(135deg,#1e3a6e,#2d5299);color:#fff;border-color:#1e3a6e}
+  .check-result{padding:10px 14px;border-radius:12px;font-size:.82rem;font-weight:600;margin-top:8px;display:none}
+  .check-result.correct{background:#f0fff6;color:#1e7a4a;display:block}
+  .check-result.wrong{background:#fff5f5;color:#c03030;display:block}
+  .verse-counter{font-size:.78rem;color:#6b7a99;text-align:right;margin-bottom:8px}
+
+  /* Shared */
+  .section-gap{height:24px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📖 希伯来书趣味游戏</h1>
+  <p>第一章 至 第六章 · 寓教于乐</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab(0)">🃏 翻牌记忆</button>
+  <button class="tab" onclick="switchTab(1)">🔍 猜猜我是谁</button>
+  <button class="tab" onclick="switchTab(2)">📝 经文排序</button>
+</div>
+
+<!-- ===== TAB 1: Memory Match ===== -->
+<div class="section active" id="tab0">
+  <div class="section-gap"></div>
+  <p class="game-title">🃏 翻牌记忆游戏</p>
+  <p class="game-desc">翻开两张卡片，配对经文出处与经文内容。找到所有6对即可获胜！</p>
+  <div class="score-bar">
+    <div><div class="score-label">已配对</div><div class="score-val" id="matched-count">0 / 6</div></div>
+    <div><div class="score-label">翻牌次数</div><div class="score-val" id="flip-count">0</div></div>
+    <div><div class="score-label">错误</div><div class="score-val" id="wrong-count">0</div></div>
+  </div>
+  <div class="cards-grid" id="cards-grid"></div>
+  <div class="win-msg" id="win-msg" style="display:none">
+    <h2>🎉 恭喜完成！</h2>
+    <p id="win-detail"></p>
+  </div>
+  <button class="btn btn-primary" onclick="initMemory()">🔄 重新开始</button>
+</div>
+
+<!-- ===== TAB 2: Who Am I ===== -->
+<div class="section" id="tab1">
+  <div class="section-gap"></div>
+  <p class="game-title">🔍 猜猜我是谁</p>
+  <p class="game-desc">根据线索，猜出希伯来书中提到的人物或事物。</p>
+  <div class="progress-dots" id="who-dots"></div>
+  <div class="who-score">第 <span id="who-cur">1</span> 题 / 共 <span id="who-total">7</span> 题 &nbsp;|&nbsp; 答对 <span id="who-score">0</span> 题</div>
+  <div class="who-card">
+    <div class="clue-num" id="clue-num">线索 1</div>
+    <div class="clue-text" id="clue-text"></div>
+    <div class="clue-ref" id="clue-ref"></div>
+  </div>
+  <div class="options-grid" id="options-grid"></div>
+  <div class="feedback" id="who-feedback" style="display:none"></div>
+  <button class="btn btn-primary" id="who-next-btn" onclick="nextWho()" style="display:none">下一题 →</button>
+  <button class="btn btn-gold" onclick="initWho()" style="margin-top:8px">🔄 重新开始</button>
+</div>
+
+<!-- ===== TAB 3: Word Order ===== -->
+<div class="section" id="tab2">
+  <div class="section-gap"></div>
+  <p class="game-title">📝 经文排序</p>
+  <p class="game-desc">点击下方词语，按正确顺序排列成完整的经文。</p>
+  <div class="verse-counter">第 <span id="verse-cur">1</span> 句 / 共 <span id="verse-total">6</span> 句</div>
+  <div class="verse-display">
+    <div class="verse-ref" id="verse-ref"></div>
+    <div class="verse-hint" id="verse-hint"></div>
+  </div>
+  <div class="answer-zone" id="answer-zone" onclick="removeLastWord()"></div>
+  <div class="word-chips" id="word-chips"></div>
+  <div class="check-result" id="check-result"></div>
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button class="btn btn-primary" onclick="checkOrder()" style="flex:2">✓ 确认答案</button>
+    <button class="btn" onclick="clearAnswer()" style="flex:1;background:#f0f2f8;color:#1e2a4a">清空</button>
+  </div>
+  <button class="btn btn-gold" onclick="nextVerse()" id="next-verse-btn" style="display:none;margin-top:8px">下一句 →</button>
+  <button class="btn" onclick="initOrder()" style="margin-top:8px;background:#f0f2f8;color:#1e2a4a">🔄 重新开始</button>
+</div>
+
+<div style="height:40px"></div>
+
+<script>
+// ===================== TAB SWITCH =====================
+function switchTab(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+  document.querySelectorAll('.section').forEach((s,j)=>s.classList.toggle('active',i===j));
+}
+
+// ===================== GAME 1: MEMORY =====================
+const memoryPairs = [
+  {ref:'希伯来书 1:3', text:'他是神荣耀所发的光辉，是神本体的真像'},
+  {ref:'希伯来书 2:18', text:'被试探而受苦，就能搭救被试探的人'},
+  {ref:'希伯来书 3:6', text:'基督为儿子，治理神的家'},
+  {ref:'希伯来书 4:12', text:'神的道是活泼的，是有功效的'},
+  {ref:'希伯来书 5:8', text:'因所受的苦难学了顺从'},
+  {ref:'希伯来书 6:19', text:'这指望如同灵魂的锚，又坚固又牢靠'},
+];
+
+let flipped=[], matched=0, flips=0, wrongs=0, canFlip=true;
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+
+function initMemory(){
+  flipped=[];matched=0;flips=0;wrongs=0;canFlip=true;
+  document.getElementById('matched-count').textContent='0 / 6';
+  document.getElementById('flip-count').textContent='0';
+  document.getElementById('wrong-count').textContent='0';
+  document.getElementById('win-msg').style.display='none';
+  const cards=[];
+  memoryPairs.forEach((p,i)=>{
+    cards.push({id:i,type:'ref',label:p.ref,pair:i});
+    cards.push({id:i+6,type:'text',label:p.text,pair:i});
+  });
+  const grid=document.getElementById('cards-grid');
+  grid.innerHTML='';
+  shuffle(cards).forEach(c=>{
+    const el=document.createElement('div');
+    el.className='card';
+    el.dataset.pair=c.pair;
+    el.dataset.type=c.type;
+    el.dataset.cid=c.id;
+    el.innerHTML=`<div class="card-inner"><div class="card-front">📖</div><div class="card-back">${c.label}</div></div>`;
+    el.addEventListener('click',()=>flipCard(el));
+    grid.appendChild(el);
+  });
+}
+
+function flipCard(el){
+  if(!canFlip||el.classList.contains('flipped')||el.classList.contains('matched')) return;
+  el.classList.add('flipped');
+  flipped.push(el);
+  if(flipped.length===2){
+    flips++;
+    document.getElementById('flip-count').textContent=flips;
+    canFlip=false;
+    const [a,b]=flipped;
+    if(a.dataset.pair===b.dataset.pair&&a.dataset.type!==b.dataset.type){
+      a.classList.add('matched');b.classList.add('matched');
+      matched++;
+      document.getElementById('matched-count').textContent=matched+' / 6';
+      flipped=[];canFlip=true;
+      if(matched===6){
+        document.getElementById('win-msg').style.display='block';
+        document.getElementById('win-detail').textContent=`翻牌 ${flips} 次，错误 ${wrongs} 次完成！你对这些经文很熟悉！`;
+      }
+    } else {
+      wrongs++;
+      document.getElementById('wrong-count').textContent=wrongs;
+      setTimeout(()=>{
+        a.classList.remove('flipped');b.classList.remove('flipped');
+        flipped=[];canFlip=true;
+      },900);
+    }
+  }
+}
+
+// ===================== GAME 2: WHO AM I =====================
+const whoQuestions = [
+  {
+    clue:'我是服役的灵，奉差遣为那将要承受救恩的人效力。我是谁？',
+    ref:'希伯来书 1:14',
+    answer:'天使',
+    options:['天使','大祭司','先知','摩西'],
+    explain:'希伯来书1:14：天使岂不都是服役的灵，奉差遣为将承受救恩的人效力吗？'
+  },
+  {
+    clue:'我在神的家中是忠心的仆人，带领以色列人走过旷野。但有一位比我更配得荣耀。我是谁？',
+    ref:'希伯来书 3:5',
+    answer:'摩西',
+    options:['亚伯拉罕','摩西','亚伦','大卫'],
+    explain:'希伯来书3:5说摩西为仆人，在神全家尽忠，但耶稣为儿子，治理神的家，比摩西更配得荣耀。'
+  },
+  {
+    clue:'我掌管死权，却被耶稣亲自成为血肉之体、借着死所败坏。我是谁？',
+    ref:'希伯来书 2:14',
+    answer:'魔鬼',
+    options:['死亡','罪恶','魔鬼','律法'],
+    explain:'希伯来书2:14：耶稣特要借着死，败坏那掌死权的，就是魔鬼。'
+  },
+  {
+    clue:'神应许我时，没有比自己更大的可以指着起誓，就指着自己起誓。我是谁？',
+    ref:'希伯来书 6:13',
+    answer:'亚伯拉罕',
+    options:['摩西','大卫','亚伯拉罕','以撒'],
+    explain:'希伯来书6:13-14：神应许亚伯拉罕的时候，因为没有可以指着比自己更大的起誓，就指着自己起誓。'
+  },
+  {
+    clue:'耶稣是照我的等次被立为大祭司。我不属于利未支派，我在亚伯拉罕时代就祝福过他。我是谁？',
+    ref:'希伯来书 5:10',
+    answer:'麦基洗德',
+    options:['亚伦','麦基洗德','撒督','以利亚撒'],
+    explain:'希伯来书5:10：耶稣被神称为照麦基洗德的等次永远为大祭司。'
+  },
+  {
+    clue:'我比两刃的剑更快，能刺入剖开魂与灵、骨节与骨髓，连心中的思念和主意都能辨明。我是什么？',
+    ref:'希伯来书 4:12',
+    answer:'神的道',
+    options:['圣灵','神的道','祷告','信心'],
+    explain:'希伯来书4:12：神的道是活泼的，是有功效的，比一切两刃的剑更快，连心中的思念和主意都能辨明。'
+  },
+  {
+    clue:'我是帐幔内的指望，如同灵魂的锚，又坚固又牢靠，让我们可以大得勉励。我是什么？',
+    ref:'希伯来书 6:18-19',
+    answer:'指望（盼望）',
+    options:['爱心','信心','指望（盼望）','忍耐'],
+    explain:'希伯来书6:19：我们有这指望，如同灵魂的锚，又坚固又牢靠，且伸入帐幔内。'
+  }
+];
+
+let whoIdx=0, whoCorrect=0, whoAnswered=false;
+
+function initWho(){
+  whoIdx=0;whoCorrect=0;whoAnswered=false;
+  document.getElementById('who-score').textContent=0;
+  document.getElementById('who-total').textContent=whoQuestions.length;
+  renderWho();
+}
+
+function renderWho(){
+  const q=whoQuestions[whoIdx];
+  document.getElementById('who-cur').textContent=whoIdx+1;
+  document.getElementById('who-score').textContent=whoCorrect;
+  document.getElementById('clue-num').textContent='线索 '+(whoIdx+1);
+  document.getElementById('clue-text').textContent=q.clue;
+  document.getElementById('clue-ref').textContent='参考：'+q.ref;
+  document.getElementById('who-feedback').style.display='none';
+  document.getElementById('who-next-btn').style.display='none';
+  whoAnswered=false;
+  const dots=document.getElementById('who-dots');
+  dots.innerHTML='';
+  whoQuestions.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i<whoIdx?' done':i===whoIdx?' current':'');
+    dots.appendChild(d);
+  });
+  const grid=document.getElementById('options-grid');
+  grid.innerHTML='';
+  shuffle(q.options).forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='opt-btn';
+    b.textContent=opt;
+    b.onclick=()=>answerWho(opt,b);
+    grid.appendChild(b);
+  });
+}
+
+function answerWho(opt,btn){
+  if(whoAnswered) return;
+  whoAnswered=true;
+  const q=whoQuestions[whoIdx];
+  const correct=opt===q.answer;
+  if(correct){whoCorrect++;document.getElementById('who-score').textContent=whoCorrect;}
+  document.querySelectorAll('.opt-btn').forEach(b=>{
+    if(b.textContent===q.answer) b.classList.add('reveal');
+    else if(b===btn&&!correct) b.classList.add('wrong');
+  });
+  btn.classList.add(correct?'correct':'wrong');
+  const fb=document.getElementById('who-feedback');
+  fb.className='feedback '+(correct?'correct':'wrong');
+  fb.textContent=(correct?'✅ 正确！':'❌ 答错了！正确答案是：'+q.answer+'。')+' '+q.explain;
+  fb.style.display='block';
+  document.getElementById('who-next-btn').style.display='block';
+  document.getElementById('who-next-btn').textContent=whoIdx===whoQuestions.length-1?'查看成绩 🎉':'下一题 →';
+}
+
+function nextWho(){
+  if(whoIdx===whoQuestions.length-1){
+    const pct=Math.round(whoCorrect/whoQuestions.length*100);
+    const msg=pct>=80?'太厉害了！':pct>=60?'很不错！继续加油！':'多复习几遍经文，下次会更好！';
+    document.getElementById('clue-text').textContent='';
+    document.getElementById('clue-ref').textContent='';
+    document.getElementById('clue-num').textContent='游戏结束';
+    document.getElementById('who-feedback').className='feedback correct';
+    document.getElementById('who-feedback').textContent=`🎉 完成！答对 ${whoCorrect} / ${whoQuestions.length} 题（${pct}%）。${msg}`;
+    document.getElementById('who-feedback').style.display='block';
+    document.getElementById('options-grid').innerHTML='';
+    document.getElementById('who-next-btn').style.display='none';
+  } else {
+    whoIdx++;
+    renderWho();
+  }
+}
+
+// ===================== GAME 3: WORD ORDER =====================
+const verseData = [
+  {
+    ref:'希伯来书 1:3',
+    hint:'关于耶稣的身份（填写前半句）',
+    words:['他是','神荣耀所发的','光辉','是神','本体的','真像'],
+    answer:'他是 神荣耀所发的 光辉 是神 本体的 真像'
+  },
+  {
+    ref:'希伯来书 2:1',
+    hint:'第二章开头的劝勉',
+    words:['所以','我们应当','越发郑重','所听见的','道理','恐怕','随流失去'],
+    answer:'所以 我们应当 越发郑重 所听见的 道理 恐怕 随流失去'
+  },
+  {
+    ref:'希伯来书 3:6',
+    hint:'摩西与基督的对比',
+    words:['基督','为儿子','治理','神的家'],
+    answer:'基督 为儿子 治理 神的家'
+  },
+  {
+    ref:'希伯来书 4:16',
+    hint:'来到神面前的鼓励',
+    words:['所以','我们只管','坦然无惧地','来到','施恩的','宝座前'],
+    answer:'所以 我们只管 坦然无惧地 来到 施恩的 宝座前'
+  },
+  {
+    ref:'希伯来书 5:8',
+    hint:'耶稣经历苦难',
+    words:['他虽然','为儿子','还是','因所受的','苦难','学了','顺从'],
+    answer:'他虽然 为儿子 还是 因所受的 苦难 学了 顺从'
+  },
+  {
+    ref:'希伯来书 6:19',
+    hint:'信仰的盼望',
+    words:['我们有','这指望','如同','灵魂的锚','又坚固','又牢靠'],
+    answer:'我们有 这指望 如同 灵魂的锚 又坚固 又牢靠'
+  }
+];
+
+let verseIdx=0, selectedWords=[], shuffledWords=[];
+
+function initOrder(){
+  verseIdx=0;
+  document.getElementById('verse-total').textContent=verseData.length;
+  document.getElementById('next-verse-btn').style.display='none';
+  loadVerse();
+}
+
+function loadVerse(){
+  const v=verseData[verseIdx];
+  selectedWords=[];
+  shuffledWords=shuffle(v.words);
+  document.getElementById('verse-cur').textContent=verseIdx+1;
+  document.getElementById('verse-ref').textContent=v.ref;
+  document.getElementById('verse-hint').textContent='提示：'+v.hint;
+  document.getElementById('check-result').style.display='none';
+  document.getElementById('check-result').className='check-result';
+  document.getElementById('next-verse-btn').style.display='none';
+  renderOrderUI();
+}
+
+function renderOrderUI(){
+  const az=document.getElementById('answer-zone');
+  az.innerHTML='';
+  selectedWords.forEach((w,i)=>{
+    const c=document.createElement('div');
+    c.className='chip in-answer';
+    c.textContent=w;
+    c.onclick=()=>removeWord(i);
+    az.appendChild(c);
+  });
+  const wc=document.getElementById('word-chips');
+  wc.innerHTML='';
+  shuffledWords.forEach((w,i)=>{
+    const c=document.createElement('div');
+    c.className='chip'+(selectedWords.includes(w)?' used':'');
+    c.textContent=w;
+    c.dataset.idx=i;
+    c.onclick=()=>addWord(w,c);
+    wc.appendChild(c);
+  });
+}
+
+function addWord(w,el){
+  if(el.classList.contains('used')) return;
+  selectedWords.push(w);
+  renderOrderUI();
+}
+
+function removeWord(i){
+  selectedWords.splice(i,1);
+  renderOrderUI();
+}
+
+function clearAnswer(){
+  selectedWords=[];
+  renderOrderUI();
+  document.getElementById('check-result').style.display='none';
+}
+
+function checkOrder(){
+  const v=verseData[verseIdx];
+  const userAns=selectedWords.join(' ');
+  const el=document.getElementById('check-result');
+  if(userAns===v.answer){
+    el.className='check-result correct';
+    el.textContent='✅ 正确！你排列得很好！';
+    el.style.display='block';
+    if(verseIdx<verseData.length-1){
+      document.getElementById('next-verse-btn').style.display='block';
+    } else {
+      el.textContent='✅ 正确！🎉 你已完成所有经文排序，真是对神话语熟悉的人！';
+    }
+  } else {
+    el.className='check-result wrong';
+    el.textContent='❌ 顺序有误，再试试！正确答案：'+v.answer;
+    el.style.display='block';
+  }
+}
+
+function nextVerse(){
+  verseIdx++;
+  document.getElementById('next-verse-btn').style.display='none';
+  loadVerse();
+}
+
+// ===================== INIT =====================
+initMemory();
+initWho();
+initOrder();
+</script>
+</body>
+</html>
