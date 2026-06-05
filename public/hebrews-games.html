@@ -13,7 +13,7 @@
   .tabs{display:flex;background:#fff;border-bottom:2px solid #e0e5f0;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .tab{flex:1;padding:12px 8px;text-align:center;font-size:.82rem;font-weight:600;color:#6b7a99;cursor:pointer;border:none;background:none;white-space:nowrap;transition:color .2s}
   .tab.active{color:#1e3a6e;border-bottom:3px solid #1e3a6e}
-  .section{display:none;padding:16px;max-width:480px;margin:0 auto}
+  .section{display:none;padding:16px;max-width:480px;margin:0 auto;padding-bottom:80px}
   .section.active{display:block}
   .game-title{font-size:1rem;font-weight:700;color:#1e3a6e;margin-bottom:6px}
   .game-desc{font-size:.78rem;color:#6b7a99;margin-bottom:14px;line-height:1.5}
@@ -24,6 +24,7 @@
   .win-msg{text-align:center;padding:20px;background:linear-gradient(135deg,#f0fff6,#e8f5ff);border-radius:16px;border:2px solid #6ecfa0;margin-top:14px}
   .win-msg h2{font-size:1.3rem;color:#1e7a4a;margin-bottom:6px}
   .win-msg p{font-size:.82rem;color:#3a6b50}
+  .footer{text-align:center;padding:16px 0;border-top:1px solid #e0e5f0;color:#5a6b8a;font-size:.72rem;margin-top:20px;font-weight:500}
 
   /* ===== GAME 1: Two-column match ===== */
   .match-status{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:12px;padding:10px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
@@ -34,7 +35,7 @@
   .col-header.left{background:#2d5299}
   .col-header.right{background:#b8731a}
   .mcol{display:flex;flex-direction:column;gap:7px}
-  .mcard{padding:11px 9px;border-radius:12px;border:2px solid #dce3f5;background:#fff;font-size:.75rem;font-weight:600;color:#1e2a4a;cursor:pointer;line-height:1.45;text-align:center;transition:all .18s;user-select:none;position:relative;min-height:62px;display:flex;align-items:center;justify-content:center}
+  .mcard{padding:11px 9px;border-radius:12px;border:2px solid #dce3f5;background:#fff;font-size:.75rem;font-weight:600;color:#1e2a4a;cursor:pointer;line-height:1.45;text-align:center;transition:all .1s}
   .mcard.selected{border-color:#2d5299;background:#eef3ff;color:#1e3a6e;box-shadow:0 0 0 3px rgba(45,82,153,.18)}
   .mcard.matched{border-color:#6ecfa0;background:#f0fff6;color:#1e6a40;cursor:default;pointer-events:none}
   .mcard.wrong{border-color:#f0a0a0;background:#fff2f2;color:#c03030;animation:shake .4s ease}
@@ -123,6 +124,7 @@
     <p id="win-detail"></p>
   </div>
   <button class="btn btn-primary" onclick="initMatch()" style="margin-top:14px">🔄 重新开始</button>
+  <div class="footer">&copy; 2026 拿城华人圣经教会</div>
 </div>
 
 <!-- ===== TAB 2: Who Am I ===== -->
@@ -141,6 +143,7 @@
   <div class="feedback" id="who-feedback" style="display:none"></div>
   <button class="btn btn-primary" id="who-next-btn" onclick="nextWho()" style="display:none">下一题 →</button>
   <button class="btn btn-gold" onclick="initWho()" style="margin-top:8px">🔄 重新开始</button>
+  <div class="footer">&copy; 2026 拿城华人圣经教会</div>
 </div>
 
 <!-- ===== TAB 3: Word Order ===== -->
@@ -162,6 +165,7 @@
   </div>
   <button class="btn btn-gold" onclick="nextVerse()" id="next-verse-btn" style="display:none;margin-top:8px">下一句 →</button>
   <button class="btn" onclick="initOrder()" style="margin-top:8px;background:#f0f2f8;color:#1e2a4a">🔄 重新开始</button>
+  <div class="footer">&copy; 2026 拿城华人圣经教会</div>
 </div>
 
 <div style="height:40px"></div>
