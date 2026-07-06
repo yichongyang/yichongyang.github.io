@@ -7,11 +7,37 @@
     <style>
         :root { --p-clr: #4a6fa5; --s-clr: #16a085; --a-clr: #e74c3c; --t-clr: #2c3e50; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
-        body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: var(--t-clr); min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+            color: var(--t-clr); 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* 1. Align content to the top instead of centering */
+            align-items: center; 
+        }
         .p-bar-bg { width: 100%; background: #e0e0e0; position: fixed; top: 0; left: 0; z-index: 100; }
         .p-bar { width: 0%; height: 6px; background: var(--s-clr); transition: width 0.3s; }
-        .quiz-container { width: 100%; max-width: 480px; padding: 20px; margin-top: 30px; margin-bottom: auto; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-        .card { background: #fff; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: none; animation: sIn 0.4s ease-out; flex-direction: column; }
+        .quiz-container { 
+            width: 100%; 
+            max-width: 480px; 
+            padding: 10px 15px; /* 2. Reduced spacing around the container */
+            margin-top: 15px;  /* 3. Shifted closer to the top bar */
+            margin-bottom: 0; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; 
+        }
+        .card { 
+            background: #fff; 
+            border-radius: 15px; 
+            padding: 18px 20px; /* 4. Made internal card padding tighter */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+            display: none; 
+            animation: sIn 0.4s ease-out; 
+            flex-direction: column; 
+        }
         .card.active { display: flex; }
         @keyframes sIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .badge { align-self: flex-start; background: var(--p-clr); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; margin-bottom: 15px; font-weight: bold; }
