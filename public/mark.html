@@ -7,52 +7,74 @@
     <style>
         :root { --p-clr: #4a6fa5; --s-clr: #16a085; --a-clr: #e74c3c; --t-clr: #2c3e50; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        
+        /* Forces the body to be exactly the height of the phone window with zero overflow */
+        html, body { height: 100%; overflow: hidden; }
+        
         body { 
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
             color: var(--t-clr); 
-            min-height: 100vh; 
             display: flex; 
             flex-direction: column; 
-            justify-content: flex-start; /* 1. Align content to the top instead of centering */
-            align-items: center; 
         }
-        .p-bar-bg { width: 100%; background: #e0e0e0; position: fixed; top: 0; left: 0; z-index: 100; }
-        .p-bar { width: 0%; height: 6px; background: var(--s-clr); transition: width 0.3s; }
+        
+        .p-bar-bg { width: 100%; background: #e0e0e0; height: 6px; position: relative; z-index: 100; }
+        .p-bar { width: 0%; height: 100%; background: var(--s-clr); transition: width 0.3s; }
+        
+        /* The quiz container takes up all available middle space tightly */
         .quiz-container { 
             width: 100%; 
             max-width: 480px; 
-            padding: 10px 15px; /* 2. Reduced spacing around the container */
-            margin-top: 15px;  /* 3. Shifted closer to the top bar */
-            margin-bottom: 0; 
-            flex-grow: 1; 
+            margin: 0 auto;
+            padding: 10px 15px; 
+            flex: 1; 
             display: flex; 
             flex-direction: column; 
-            justify-content: flex-start; 
+            justify-content: center; /* Centers vertically within the safe zone */
+            overflow: hidden;
         }
+        
+        /* Card adjusts cleanly and absorbs any extra spacing inside */
         .card { 
             background: #fff; 
-            border-radius: 15px; 
-            padding: 18px 20px; /* 4. Made internal card padding tighter */
+            border-radius: 16px; 
+            padding: 16px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
             display: none; 
-            animation: sIn 0.4s ease-out; 
+            animation: sIn 0.3s ease-out; 
             flex-direction: column; 
+            max-height: 85vh; /* Prevents card from ever pushing elements off-screen */
+            overflow-y: auto; /* Just in case explanation text is long, only the card scrolls */
         }
         .card.active { display: flex; }
-        @keyframes sIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .badge { align-self: flex-start; background: var(--p-clr); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; margin-bottom: 15px; font-weight: bold; }
-        .q-text { font-size: 1.2rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
-        .opt-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-        .opt-btn { background: #f8f9fa; border: 2px solid #e2e8f0; border-radius: 12px; padding: 15px; text-align: left; font-size: 1rem; cursor: pointer; color: var(--t-clr); outline: none; }
-        .input-blank { width: 100%; padding: 15px; font-size: 1.1rem; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; outline: none; }
-        .submit-btn, .next-btn { background: var(--p-clr); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 1rem; font-weight: bold; width: 100%; cursor: pointer; }
-        .next-btn { background: var(--s-clr); margin-top: 15px; }
+        @keyframes sIn { from { transform: translateX(50%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .badge { align-self: flex-start; background: var(--p-clr); color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; margin-bottom: 10px; font-weight: bold; }
+        .q-text { font-size: 1.1rem; font-weight: 600; line-height: 1.4; margin-bottom: 15px; }
+        .opt-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .opt-btn { background: #f8f9fa; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; text-align: left; font-size: 0.95rem; cursor: pointer; color: var(--t-clr); outline: none; }
+        .input-blank { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid #e2e8f0; border-radius: 10px; margin-bottom: 10px; outline: none; }
+        
+        .submit-btn, .next-btn { background: var(--p-clr); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 0.95rem; font-weight: bold; width: 100%; cursor: pointer; }
+        .next-btn { background: var(--s-clr); margin-top: 10px; }
+        
         .correct { background: #d4edda !important; border-color: #28a745 !important; color: #155724 !important; }
         .incorrect { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24 !important; }
-        .exp-box { margin-top: 20px; padding: 15px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; display: none; }
-        footer { width: 100%; text-align: center; padding: 15px; font-size: 0.75rem; color: #7f8c8d; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(5px); }
+        
+        .exp-box { margin-top: 12px; padding: 12px; border-radius: 10px; font-size: 0.85rem; line-height: 1.4; display: none; }
+        
+        /* Footer sits perfectly anchored right underneath the quiz zone without artificial gaps */
+        footer { 
+            width: 100%; 
+            text-align: center; 
+            padding: 10px; 
+            font-size: 0.75rem; 
+            color: #7f8c8d; 
+            background: rgba(255, 255, 255, 0.7); 
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
     </style>
-</head>
+  </head>
 <body>
 
 <div class="card active" id="welcome-card" style="max-width: 480px; margin: 40px auto; display: flex;">
@@ -60,7 +82,7 @@
     <h1 style="font-size: 1.8rem; text-align: center; color: var(--p-clr); margin-bottom: 15px;">📖 《马可福音》<br>趣味互动闯关测验</h1>
     
     <div style="background: #f8f9fa; border-left: 4px solid var(--p-clr); padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.6;">
-        <b style="color: var(--t-clr);">💡 测验简短说明：</b><br>
+
         本测验专为手机端优化，每页仅显示一题。答题后将实时显示正误并附带详细的经文解析。让我们一起在趣味答题中复习神的话语！
     </div>
 
