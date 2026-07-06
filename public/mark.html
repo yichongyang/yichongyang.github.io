@@ -26,11 +26,11 @@
             width: 100%; 
             max-width: 480px; 
             margin: 0 auto;
-            padding: 10px 15px; 
+            padding: 15px 15px 10px 15px; /* Added 15px padding at the top */
             flex: 1; 
             display: flex; 
             flex-direction: column; 
-            justify-content: center; /* Centers vertically within the safe zone */
+            justify-content: flex-start; /* ✨ Changed from center to flex-start to pin cards to the top */
             overflow: hidden;
         }
         
@@ -102,9 +102,9 @@
         </li>
     </ul>
 
-    <button class="submit-btn" style="background: linear-gradient(135deg, var(--p-clr), var(--s-clr)); padding: 18px; font-size: 1.1rem; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(22, 160, 133, 0.3);" onclick="startQuizNow()">
-        ⚡ 立即开启第一关 ⚡
-    </button>
+<button class="submit-btn" style="background: linear-gradient(135deg, var(--p-clr), var(--s-clr)); padding: 12px 18px; font-size: 1rem; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(22, 160, 133, 0.3);" onclick="startQuizNow()">
+    ⚡ 立即开启第一关 ⚡
+</button>
 </div>
 
 <script>
