@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马可福音互动测验</title>
+    <style>
+        :root { --p-clr: #4a6fa5; --s-clr: #16a085; --a-clr: #e74c3c; --t-clr: #2c3e50; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: var(--t-clr); min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+        .p-bar-bg { width: 100%; background: #e0e0e0; position: fixed; top: 0; left: 0; z-index: 100; }
+        .p-bar { width: 0%; height: 6px; background: var(--s-clr); transition: width 0.3s; }
+        .quiz-container { width: 100%; max-width: 480px; padding: 20px; margin-top: 30px; margin-bottom: auto; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .card { background: #fff; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: none; animation: sIn 0.4s ease-out; flex-direction: column; }
+        .card.active { display: flex; }
+        @keyframes sIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .badge { align-self: flex-start; background: var(--p-clr); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; margin-bottom: 15px; font-weight: bold; }
+        .q-text { font-size: 1.2rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+        .opt-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .opt-btn { background: #f8f9fa; border: 2px solid #e2e8f0; border-radius: 12px; padding: 15px; text-align: left; font-size: 1rem; cursor: pointer; color: var(--t-clr); outline: none; }
+        .input-blank { width: 100%; padding: 15px; font-size: 1.1rem; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; outline: none; }
+        .submit-btn, .next-btn { background: var(--p-clr); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 1rem; font-weight: bold; width: 100%; cursor: pointer; }
+        .next-btn { background: var(--s-clr); margin-top: 15px; }
+        .correct { background: #d4edda !important; border-color: #28a745 !important; color: #155724 !important; }
+        .incorrect { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24 !important; }
+        .exp-box { margin-top: 20px; padding: 15px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; display: none; }
+        footer { width: 100%; text-align: center; padding: 15px; font-size: 0.75rem; color: #7f8c8d; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(5px); }
+    </style>
+</head>
+<body>
+
+<div class="card active" id="welcome-card" style="max-width: 480px; margin: 40px auto; display: flex;">
+    <div class="badge" style="background: var(--p-clr);">欢迎来到圣经研读系列</div>
+    <h1 style="font-size: 1.8rem; text-align: center; color: var(--p-clr); margin-bottom: 15px;">📖 《马可福音》<br>趣味互动闯关测验</h1>
+    
+    <div style="background: #f8f9fa; border-left: 4px solid var(--p-clr); padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.6;">
+        <b style="color: var(--t-clr);">💡 测验简短说明：</b><br>
+        本测验专为手机端优化，每页仅显示一题。答题后将实时显示正误并附带详细的经文解析。让我们一起在趣味答题中复习神的话语！
+    </div>
+
+    <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: var(--t-clr);">🎯 挑战目标（共三关）：</h3>
+    <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
+        <li style="padding: 12px; background: #eef2f7; border-radius: 10px; font-size: 0.95rem; display: flex; align-items: center;">
+            <span style="font-size: 1.3rem; margin-right: 10px;">🛡️</span> 
+            <div><b>第一关：单选基本功</b> (1-10题) - 夯实基础</div>
+        </li>
+        <li style="padding: 12px; background: #e8f4f1; border-radius: 10px; font-size: 0.95rem; display: flex; align-items: center;">
+            <span style="font-size: 1.3rem; margin-right: 10px;">🔍</span> 
+            <div><b>第二关：真伪辨析眼</b> (11-20题) - 明辨真伪</div>
+        </li>
+        <li style="padding: 12px; background: #fdf2f0; border-radius: 10px; font-size: 0.95rem; display: flex; align-items: center;">
+            <span style="font-size: 1.3rem; margin-right: 10px;">✍️</span> 
+            <div><b>第三关：经文填空墙</b> (21-30题) - 记忆挑战</div>
+        </li>
+    </ul>
+
+    <button class="submit-btn" style="background: linear-gradient(135deg, var(--p-clr), var(--s-clr)); padding: 18px; font-size: 1.1rem; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(22, 160, 133, 0.3);" onclick="startQuizNow()">
+        ⚡ 立即开启第一关 ⚡
+    </button>
+</div>
+
+<script>
+// 首页进入第一关的控制逻辑
+function startQuizNow() {
+    // 隐藏首页卡片
+    const welcomeCard = document.getElementById('welcome-card');
+    welcomeCard.style.display = 'none';
+    welcomeCard.classList.remove('active');
+    
+    // 显示并激活真实的测验第一题 (索引为0的卡片)
+    const firstQuestionCard = document.getElementById('c-0');
+    if (firstQuestionCard) {
+        firstQuestionCard.classList.add('active');
+    }
+}
+
+// 修正初始化逻辑：确保刚打开网页时测验卡片全部隐藏，只显示首页
+document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(function() {
+        // 将原逻辑默认激活的第一题隐藏，把舞台让给首页
+        const firstCard = document.getElementById('c-0');
+        if (firstCard) firstCard.classList.remove('active');
+    }, 50);
+});
+</script>
+
+    <div class="p-bar-bg"><div class="p-bar" id="pBar"></div></div>
+    <div class="quiz-container" id="qBox"></div>
+    <footer>© 2026 马可福音研经历史委员会 · 版权所有</footer>
+<script>
+const raw = [
+    "s|1|1. 《马可福音》第一章中，在旷野传道、为耶稣施洗的人是谁？|A.耶稣,B.施洗约翰,C.彼得,D.以利亚|1|马可福音1:4-5 记载，施洗约翰在旷野传道并为耶稣施洗。",
+    "s|1|2. 耶稣呼召的第一批门徒中，西门和谁是兄弟？|A.雅各,B.约翰,C.安得烈,D.腓力|2|马可福音1:16 记载，耶稣看见西门和同他哥哥安得烈在海里撒网。",
+    "s|1|3. 耶稣在迦百农医治了一个瘫子，他是通过什么方式被送到耶稣面前的？|A.抬轿子,B.拆了房顶缒下去,C.走正门挤进来,D.坐车|1|马可福音2:4 记载，人多不得近前，就把耶稣所在的房子拆了房顶缒下去。",
+    "s|1|4. 耶稣指出，设立安息日是为什么设立的？|A.为人,B.为神,C.为祭司,D.为法利赛人|0|马可福音2:27 耶稣对他们说：“安息日是为人设立的。”",
+    "s|1|5. 在撒种的比喻中，种子落在哪种土地里能结实百倍？|A.路旁,B.土浅石头地上,C.荆棘里,D.好土里|3|马可福音4:8 记载，又有落在好土里的，就发生长大结实百倍。",
+    "s|1|6. 耶稣在加利利海上平息风浪时，对风和海说了什么话？|A.停下来,B.住了吧！静了吧！,C.不要怕,D.神与我们同在|1|马可福音4:39 耶稣醒了斥责风说：“住了吧！静了吧！”",
+    "s|1|7. 格拉森被鬼附的人，附在他身上的鬼叫什么名字？|A.别西卜,B.撒旦,C.群,D.犹大|2|马可福音5:9 回答说：“我名叫‘群’，因为我们多的缘故。”",
+    "s|1|8. 耶稣用什么食物喂饱了五千人？|A.五饼二鱼,B.七饼几条小鱼,C.吗哪,D.烤鱼配大麦饼|0|马可福音6:41 耶稣拿着这五个饼，两条鱼，望天祝福擘开。",
+    "s|1|9. 哪位门徒在凯撒利亚腓立比对耶稣说：“你是基督”？|A.约翰,B.彼得,C.雅各,D.托马斯|1|马可福音8:29 彼得回答说：“你是基督。”这是著名的彼得认信。",
+    "s|1|10. 耶稣登山显荣时，显现并与耶稣说话的两位旧约人物是谁？|A.亚伯拉罕和摩西,B.摩西和以利亚,C.大卫和所罗门,D.以利亚和以赛亚|1|马可福音9:4 记载，有以利亚同摩西向他们显现并同耶稣说话。",
+    "t|2|11. 耶稣曾说，凡遵行神旨意的人就是祂的弟兄姐妹和母亲了。|正确,错误|0|马可福音3:35 “凡遵行神旨意的人，就是我的弟兄姐妹和母亲了。”",
+    "t|2|12. 耶稣在家乡拿撒勒传道时，受到了当地人热烈的欢迎和尊崇。|正确,错误|1|马可福音6:4 耶稣说大凡先知除了本地本家外没有不尊敬的，在当地未行异能。",
+    "t|2|13. 一个患了十二年血漏的妇人，因摸了耶稣的衣裳繸子而痊愈。|正确,错误|0|马可福音5:27-29 妇人杂在众人中间摸耶稣的衣裳，血漏源头立刻干了。",
+    "t|2|14. 希律王因为极其讨厌施洗约翰，所以主动设计杀死了他。|正确,错误|1|马可福音6:20 希律敬畏约翰。杀他因希罗底女儿跳舞索要及同席面子勉强答应。",
+    "t|2|15. 耶稣曾斥责彼得说：“退我后边去吧！因为你不体贴神的意思。”|正确,错误|0|马可福音8:33 耶稣斥责彼得，因为彼得在耶稣预言受难后拦阻祂。",
+    "t|2|16. 耶稣说，骆驼穿过针的眼，比财主进神的国还容易呢。|正确,错误|0|马可福音10:25 耶稣借此说明依靠钱财的财主进天国之难。",
+    "t|2|17. 门徒雅各和约翰求在耶稣荣耀里坐左右边，耶稣当场应允了。|正确,错误|1|马可福音10:40 耶稣回答说坐在我的左右乃是为谁预备的就赐给谁。",
+    "t|2|18. 耶稣骑着一匹高大的战马凯旋进入耶路撒冷。|正确,错误|1|马可福音11:7 记载，耶稣是骑着一匹“驴驹”进城的，展现谦卑形象。",
+    "t|2|19. 耶稣指出律法中第一要紧的诫命是“你要尽心尽力爱主你的神”。|正确,错误|0|马可福音12:29-30 耶稣回答这是诫命中第一要紧的。",
+    "t|2|20. 耶稣在圣殿看众人投钱，指出富有的人比穷寡妇奉献的更多。|正确,错误|1|马可福音12:43 耶稣说这穷寡妇投的比众人更多，因她把养生的都投上了。",
+    "f|3|21. 神的儿子，耶稣基督______的起头。（2字）||福音|马可福音1:1 原句：“神的儿子，耶稣基督福音的起头。”",
+    "f|3|22. 耶稣曾用七个饼和几条小鱼喂饱了大约______千人。（1个汉字数字）||四|马可福音8:9 记载：“人数约有四千。”注意这和五饼二鱼不同。",
+    "f|3|23. 耶稣在客西马尼园祷告时，称呼神为“阿爸，______”。（2字）||父啊|马可福音14:36 耶稣说：“阿爸！父啊！在你凡事都能...”",
+    "f|3|24. 最后的晚餐中耶稣擘开饼递给门徒说：这是我的______。（2字）||身体|马可福音14:22 耶稣说：“你们拿着吃，这是我的身体。”",
+    "f|3|25. 耶稣被捕后，哪位门徒在院子里三次不认祂？（2字名字）||彼得|马可福音14:72 鸡叫第二遍，彼得想起耶稣的话就哭了。",
+    "f|3|26. 耶稣受审时，当时的罗马巡抚名字叫公丢·______。（3字）||彼拉多|马可福音15:1 全公会的人把耶稣捆绑解去交给彼拉多。",
+    "f|3|27. 耶稣被钉十字架的地方名叫______，翻译出来就是骷髅地。（3字）||各各他|马加福音15:22 他们带耶稣到了各各他地方。",
+    "f|3|28. 耶稣断气时，殿里的______从上到下裂为两半。（2字）||幔子|马可福音15:38 殿里的幔子裂为两半，预示人可借耶稣直接进到神面前。",
+    "f|3|29. 耶稣死后，亚利马太的______放胆去求彼拉多要耶稣的身体安葬。（2字名字）||约瑟|马可福音15:43 亚利马太的约瑟前来，他是等候神国的。",
+    "f|3|30. 耶稣复活后，清早首先向抹大拉的______显现。（2字名字）||马利亚|马可福音16:9 耶稣复活了，就先向抹大拉的马利亚显现。"
+];
+const qData = raw.map(line => {
+    const parts = line.split('|');
+    return { 
+        type: parts[0]==='s'?'single':(parts[0]==='t'?'true_false':'fill'), 
+        stage: parseInt(parts[1]), 
+        q: parts[2], 
+        opts: parts[3]?parts[3].split(','):[], 
+        ans: parts[4], 
+        exp: parts[5] 
+    };
+});
+
+let cur = 0, score = 0, stgScore = 0;
+const box = document.getElementById("qBox"), pBar = document.getElementById("pBar");
+
+function init() {
+    box.innerHTML = "";
+    qData.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = `card ${i===0?'active':''}`; card.id = `c-${i}`;
+        let sName = q.stage===1?"第一关：单选基本功":(q.stage===2?"第二关：真伪辨析眼":"第三关：经文填空墙");
+        let html = `<div class="badge">${sName} · ${i+1}/30</div><div class="q-text">${q.q}</div>`;
+        if (q.type !== 'fill') {
+            html += `<div class="opt-list">`;
+            q.opts.forEach((o, oi) => html += `<button class="opt-btn" onclick="chkSel(${i},${oi})">${o}</button>`);
+            html += `</div>`;
+        } else {
+            html += `<input type="text" class="input-blank" id="inp-${i}" placeholder="答案..."><button class="submit-btn" onclick="chkFil(${i})">提交</button>`;
+        }
+        html += `<div class="exp-box" id="exp-${i}"></div><button class="next-btn" id="nxt-${i}" style="display:none;" onclick="nxt(${i})">下一页</button>`;
+        card.innerHTML = html; box.appendChild(card);
+    });
+    mkStg(1); mkStg(2); mkFin(); upP();
+}
+
+function mkStg(s) {
+    const c = document.createElement("div"); c.className = "card"; c.id = `stg-${s}`;
+    c.innerHTML = `<div class="badge" style="background:var(--s-clr)">关卡结算</div><h2>关卡完成！</h2><p style="margin:15px 0;">本关答对题数：</p><div class="score-display" id="sv-${s}" style="font-size:3rem;font-weight:bold;color:var(--p-clr);margin:20px 0;">0</div><button class="submit-btn" style="background:var(--s-clr)" onclick="goStg(${s})">进入下一关</button>`;
+    box.appendChild(c);
+}
+
+function mkFin() {
+    const c = document.createElement("div"); c.className = "card"; c.id = "fin";
+    c.innerHTML = `<div class="badge" style="background:var(--a-clr)">终极通关</div><h2>🎉 测试圆满结束 🎉</h2><p style="margin-top:15px;">最终总得分</p><div class="score-display" id="fv" style="font-size:3rem;font-weight:bold;color:var(--a-clr);margin:20px 0;">0 分</div><div id="fcm" style="font-size:1.1rem;margin-bottom:25px;line-height:1.6;color:#555"></div><button class="submit-btn" onclick="location.reload()">重新挑战</button>`;
+    box.appendChild(c);
+}
+
+function upP() { pBar.style.width = `${(cur/30)*100}%`; }
+
+function chkSel(i, oi) {
+    const q = qData[i], c = document.getElementById(`c-${i}`), btns = c.querySelectorAll(".opt-btn");
+    btns.forEach(b => b.disabled = true);
+    const isC = oi == q.ans; if(isC) { btns[oi].classList.add("correct"); score+=3.33; stgScore++; } else { btns[oi].classList.add("incorrect"); btns[q.ans].classList.add("correct"); }
+    shExp(i, isC, q.exp);
+}
+
+function chkFil(i) {
+    const q = qData[i], inp = document.getElementById(`inp-${i}`), btn = inp.nextElementSibling, val = inp.value.trim();
+    if(!val) return alert("请输入答案！");
+    inp.disabled = btn.disabled = true;
+    const isC = val === q.ans || (q.ans==='幔子' && val==='慢子') || (q.ans==='慢子' && val==='幔子');
+    if(isC) { inp.classList.add("correct"); score+=3.4; stgScore++; } else { inp.classList.add("incorrect"); }
+    shExp(i, isC, `${q.exp} (标准答案: ${q.ans})`);
+}
+
+function shExp(i, isC, txt) {
+    const eb = document.getElementById(`exp-${i}`); eb.innerHTML = `<b style="color:${isC?'#28a745':'#dc3545'}">${isC?'正确！':'回答错误。'}</b><br>${txt}`;
+    eb.style.display = "block"; eb.style.background = isC ? "#e2f0d9" : "#fbe5e6";
+    document.getElementById(`nxt-${i}`).style.display = "block";
+}
+
+function nxt(i) {
+    document.getElementById(`c-${i}`).classList.remove("active");
+    if (i === 9) { showS(1); } else if (i === 19) { showS(2); } else if (i === 29) { showF(); } else { cur = i + 1; document.getElementById(`c-${cur}`).classList.add("active"); upP(); }
+}
+
+function showS(s) { document.getElementById(`sv-${s}`).innerText = `${stgScore} / 10 题`; document.getElementById(`stg-${s}`).classList.add("active"); stgScore = 0; }
+function goStg(s) { document.getElementById(`stg-${s}`).classList.remove("active"); cur = s * 10; document.getElementById(`c-${cur}`).classList.add("active"); upP(); }
+
+function showF() {
+    let fs = Math.min(Math.round(score), 100), cm = "";
+    if(fs >= 90) cm = "👑 卓越不凡！你对《马可福音》的细节如数家珍，深知耶稣作为‘受苦仆人’的救赎轨迹，堪称经文宣教士！";
+    else if(fs >= 75) cm = "🌟 成绩优秀！你非常熟悉马可福音的精髓，对耶稣的真理神迹理解透彻。继续保持对神话语的渴慕！";
+    else if(fs >= 60) cm = "📖 及格通过！你已经掌握了马可福音的基础叙事骨架。多读经多默想，下一次你一定能拿高分！";
+    else cm = "🌱 加油鼓劲！别气馁，带上这份解析回去重新翻开圣经，你一定会有新收获！";
+    document.getElementById("fv").innerText = `${fs} 分`; document.getElementById("fcm").innerHTML = cm;
+    document.getElementById("fin").classList.add("active"); pBar.style.width = "100%";
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
